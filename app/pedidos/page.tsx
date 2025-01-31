@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Home, Upload, Copy, Check } from 'lucide-react'
+import { ArrowLeft, Home, Copy, Check } from 'lucide-react'
 import { FaWhatsapp } from 'react-icons/fa'
 import {
   Dialog,
@@ -29,7 +29,6 @@ interface PedidoCompleto {
     observacoes?: string
   }
   pagamento: string
-  comprovanteBase64?: string
 }
 
 function PedidosContent() {
@@ -54,9 +53,7 @@ function PedidosContent() {
     observacoes: ''
   })
 
-  const [metodoPagamento, setMetodoPagamento] = useState('pix')
-  const [comprovante, setComprovante] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [metodoPagamento, setMetodoPagamento] = useState('dinheiro')
   const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false)
   const [copiado, setCopiado] = useState(false)
   const chavePix = "cris.lima34@hotmail.com" // Substitua pela sua chave PIX real
@@ -71,42 +68,13 @@ function PedidosContent() {
     }
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    setError(null)
-
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('O arquivo deve ter no máximo 5MB')
-        return
-      }
-
-      if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-        setError('Apenas arquivos JPG e PNG são aceitos')
-        return
-      }
-
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setComprovante(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (metodoPagamento === 'pix' && !comprovante) {
-      setError('Por favor, envie o comprovante do PIX antes de continuar')
-      return
-    }
 
     const pedidoCompleto: PedidoCompleto = {
       bolos: carrinho,
       cliente: dadosCliente,
-      pagamento: metodoPagamento,
-      comprovanteBase64: comprovante || undefined
+      pagamento: metodoPagamento
     }
 
     const mensagemWhatsApp = gerarMensagemWhatsApp(pedidoCompleto)
@@ -135,10 +103,6 @@ function PedidosContent() {
       mensagem += `*Observações:* ${pedido.cliente.observacoes}\n`
     }
 
-    if (metodoPagamento === 'pix') {
-      mensagem += `\n*Comprovante:* Enviado em anexo\n`
-    }
-
     return mensagem
   }
 
@@ -149,11 +113,6 @@ function PedidosContent() {
   const removerBolo = (index: number) => {
     const novoCarrinho = carrinho.filter((_, i) => i !== index)
     setCarrinho(novoCarrinho)
-  }
-
-  const removerComprovante = () => {
-    setComprovante(null)
-    setError(null)
   }
 
   return (
@@ -243,75 +202,25 @@ function PedidosContent() {
                 setMetodoPagamento(e.target.value)
                 if (e.target.value === 'pix') {
                   setIsQRCodeModalOpen(true)
-                } else {
-                  setComprovante(null)
-                  setError(null)
                 }
               }}
               className="w-full border rounded p-2 text-black bg-white focus:ring-2 focus:ring-pink-300 text-sm"
             > 
-              <option value="pix">PIX</option>
               <option value="dinheiro">Dinheiro</option>
+              <option value="pix">PIX</option>
               <option value="cartao">Cartão</option>
             </select>
           </div>
 
           {metodoPagamento === 'pix' && (
             <div className="space-y-2">
-              <label className="block text-black text-sm">
-                Comprovante do PIX
-                <span className="text-red-500">*</span>
-              </label>
-              
               <button
                 type="button"
                 onClick={() => setIsQRCodeModalOpen(true)}
                 className="w-full text-pink-600 underline text-sm mb-2"
               >
-                Visualizar QR Code PIX novamente
+                Visualizar QR Code PIX
               </button>
-              
-              {!comprovante ? (
-                <div className="relative">
-                  <input
-                    type="file"
-                    onChange={handleFileUpload}
-                    accept="image/jpeg,image/png,image/jpg"
-                    className="hidden"
-                    id="comprovante"
-                  />
-                  <label
-                    htmlFor="comprovante"
-                    className="flex items-center justify-center w-full border-2 border-dashed border-pink-300 rounded-lg p-4 text-pink-500 cursor-pointer hover:bg-pink-50"
-                  >
-                    <Upload className="mr-2" />
-                    Enviar Comprovante
-                  </label>
-                </div>
-              ) : (
-                <div className="relative">
-                  <img 
-                    src={comprovante} 
-                    alt="Comprovante" 
-                    className="w-full rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={removerComprovante}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-              
-              {error && (
-                <p className="text-red-500 text-sm">{error}</p>
-              )}
-              
-              <p className="text-gray-500 text-xs">
-                Aceito apenas arquivos JPG e PNG (máx. 5MB)
-              </p>
             </div>
           )}
 
@@ -329,7 +238,7 @@ function PedidosContent() {
 
         <button
           type="submit"
-          disabled={carrinho.length === 0 || (metodoPagamento === 'pix' && !comprovante)}
+          disabled={carrinho.length === 0}
           className="mt-4 w-full bg-pink-500 text-white py-3 rounded hover:bg-pink-600 
                      disabled:opacity-50 flex items-center justify-center 
                      active:scale-95 transition-transform text-sm md:text-base"
@@ -377,9 +286,6 @@ function PedidosContent() {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mt-4">
-                Após o pagamento, envie o comprovante abaixo
-              </p>
             </div>
           </div>
         </DialogContent>
