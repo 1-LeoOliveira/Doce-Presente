@@ -17,6 +17,15 @@ interface ItemCarrinho {
   tipo: 'bolo' | 'salgado'
 }
 
+interface Item {
+  id: number
+  nome: string
+  preco: number
+  tamanhos?: string[]
+  imagem: string
+  descricao: string
+}
+
 function CardapioContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'bolos' | 'salgados'>('bolos')
@@ -68,7 +77,7 @@ function CardapioContent() {
     }
   }
 
-  const adicionarAoCarrinho = (item: any, tipo: 'bolo' | 'salgado') => {
+  const adicionarAoCarrinho = (item: Item, tipo: 'bolo' | 'salgado') => {
     const key = `${tipo}-${item.id}`
     const detalhes = itemsQuantidade[key] || { 
       quantidade: 1, 
@@ -141,7 +150,7 @@ function CardapioContent() {
                 }}
                 className="border rounded px-2 py-1 text-sm w-full sm:w-auto"
               >
-                {item.tamanhos.map(tamanho => (
+                {item.tamanhos && item.tamanhos.map(tamanho => (
                   <option key={tamanho} value={tamanho}>
                     {tamanho}
                   </option>
@@ -206,7 +215,6 @@ function CardapioContent() {
           Nosso Cardápio
         </h1>
 
-        {/* Tabs */}
         <div className="flex space-x-2 mb-4">
           <button
             onClick={() => setActiveTab('bolos')}
