@@ -78,6 +78,14 @@
       "preco": 15.00,
       "tamanhos": ["400ml"],
       "imagem": "/img/bolos/chocolate.jpeg"
+    },
+    {
+      "id": 11,
+      "nome": "Amendoim",
+      "descricao": "Bolo de leite com creme de amendoim",
+      "preco": 15.00,
+      "tamanhos": ["400ml"],
+      "imagem": "/img/bolos/amendoim.jpeg"
     }
   ]
   

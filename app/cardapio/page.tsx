@@ -30,7 +30,7 @@ interface Item {
 function CardapioContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'bolos' | 'salgados'>('bolos')
-  const [selectedImage, setSelectedImage] = useState<{src: string, alt: string} | null>(null)
+  const [selectedImage, setSelectedImage] = useState<{ src: string, alt: string } | null>(null)
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>(() => {
     const carrinhoParam = searchParams.get('carrinho')
     if (carrinhoParam) {
@@ -44,7 +44,7 @@ function CardapioContent() {
     return []
   })
 
-  const [itemsQuantidade, setItemsQuantidade] = useState<{[key: string]: {quantidade: number, tamanho: string}}>({})
+  const [itemsQuantidade, setItemsQuantidade] = useState<{ [key: string]: { quantidade: number, tamanho: string } }>({})
 
   const getItemKey = (itemId: number, tipo: 'bolo' | 'salgado') => `${tipo}-${itemId}`
 
@@ -81,8 +81,8 @@ function CardapioContent() {
 
   const adicionarAoCarrinho = (item: Item, tipo: 'bolo' | 'salgado') => {
     const key = getItemKey(item.id, tipo)
-    const detalhes = itemsQuantidade[key] || { 
-      quantidade: 1, 
+    const detalhes = itemsQuantidade[key] || {
+      quantidade: 1,
       tamanho: tipo === 'bolo' ? '400ml' : 'Unidade'
     }
 
@@ -96,8 +96,8 @@ function CardapioContent() {
     }
 
     const carrinhoAtualizado = [...carrinho]
-    const indiceExistente = carrinhoAtualizado.findIndex(i => 
-      i.id === itemNoCarrinho.id && 
+    const indiceExistente = carrinhoAtualizado.findIndex(i =>
+      i.id === itemNoCarrinho.id &&
       i.tipo === tipo &&
       i.tamanho === itemNoCarrinho.tamanho
     )
@@ -109,7 +109,7 @@ function CardapioContent() {
     }
 
     setCarrinho(carrinhoAtualizado)
-    
+
     atualizarQuantidade(item.id, 1, detalhes.tamanho, tipo)
   }
 
@@ -117,19 +117,19 @@ function CardapioContent() {
 
   const renderItems = () => {
     const items = activeTab === 'bolos' ? bolos : salgados.salgados
-    
+
     return items.map((item) => {
       const tipo = activeTab === 'bolos' ? 'bolo' : 'salgado'
       const key = getItemKey(item.id, tipo)
       const quantidade = getInitialQuantidade(item.id, tipo)
 
       return (
-        <div 
-          key={`${activeTab}-${item.id}`} 
+        <div
+          key={`${activeTab}-${item.id}`}
           className="border rounded-lg overflow-hidden shadow-md bg-pink-50 p-3 md:p-4"
         >
-          <Image 
-            src={item.imagem} 
+          <Image
+            src={item.imagem}
             alt={item.nome}
             width={400}
             height={300}
@@ -141,14 +141,14 @@ function CardapioContent() {
               {item.nome}
             </h2>
             <p className="text-sm md:text-base text-gray-600 mb-2">{item.descricao}</p>
-            
+
             <div className="flex flex-col sm:flex-row justify-between items-center mb-2 space-y-2 sm:space-y-0">
               <span className="text-base md:text-lg font-bold text-pink-600">
                 R$ {item.preco.toFixed(2)}
                 {activeTab === 'salgados' && ' / unidade'}
               </span>
               {activeTab === 'bolos' && (
-                <select 
+                <select
                   value={itemsQuantidade[key]?.tamanho || '400ml'}
                   onChange={(e) => {
                     atualizarQuantidade(
@@ -187,7 +187,7 @@ function CardapioContent() {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              <button 
+              <button
                 onClick={() => adicionarAoCarrinho(item, tipo)}
                 className="w-full sm:flex-1 bg-pink-500 text-white py-2 rounded hover:bg-pink-600 text-sm"
               >
@@ -203,7 +203,7 @@ function CardapioContent() {
   return (
     <div className="container mx-auto px-2 md:px-4 py-4 md:py-8 bg-[#ffcbdb] min-h-screen">
       {carrinho.length > 0 && (
-        <Link 
+        <Link
           href={{
             pathname: '/pedidos',
             query: { carrinho: JSON.stringify(carrinho) }
@@ -216,34 +216,32 @@ function CardapioContent() {
       )}
 
       <div className="relative flex flex-col items-center justify-center mb-4">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="self-start w-full max-w-xs flex items-center text-pink-700 hover:text-pink-900 mb-2"
         >
           <Home className="mr-2" /> Início
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-center text-pink-600">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-center text-pink-600 font-pacifico">
           Nosso Cardápio
         </h1>
 
         <div className="flex space-x-2 mb-4">
           <button
             onClick={() => setActiveTab('bolos')}
-            className={`px-4 py-2 rounded-lg transition ${
-              activeTab === 'bolos'
+            className={`px-4 py-2 rounded-lg transition ${activeTab === 'bolos'
                 ? 'bg-pink-500 text-white'
                 : 'bg-pink-200 text-pink-700 hover:bg-pink-300'
-            }`}
+              }`}
           >
             Bolos de Pote
           </button>
           <button
             onClick={() => setActiveTab('salgados')}
-            className={`px-4 py-2 rounded-lg transition ${
-              activeTab === 'salgados'
+            className={`px-4 py-2 rounded-lg transition ${activeTab === 'salgados'
                 ? 'bg-pink-500 text-white'
                 : 'bg-pink-200 text-pink-700 hover:bg-pink-300'
-            }`}
+              }`}
           >
             Salgados
           </button>
@@ -257,10 +255,10 @@ function CardapioContent() {
       </div>
 
       {selectedImage && (
-        <ImageModal 
-          src={selectedImage.src} 
-          alt={selectedImage.alt} 
-          onClose={() => setSelectedImage(null)} 
+        <ImageModal
+          src={selectedImage.src}
+          alt={selectedImage.alt}
+          onClose={() => setSelectedImage(null)}
         />
       )}
     </div>
