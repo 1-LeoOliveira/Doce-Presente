@@ -15,7 +15,7 @@ const ImageModal: React.FC<ImageModalProps> = ({ src, alt, onClose }) => {
       onClick={onClose}
     >
       <div 
-        className="relative max-w-[90%] max-h-[90%] bg-white p-2 rounded-lg shadow-2xl"
+        className="relative max-w-[90%] max-h-[90%] flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
         <button 
@@ -24,14 +24,19 @@ const ImageModal: React.FC<ImageModalProps> = ({ src, alt, onClose }) => {
         >
           <X className="w-6 h-6" />
         </button>
-        <Image 
-          src={src} 
-          alt={alt}
-          layout="responsive"
-          width={800}
-          height={600}
-          className="object-contain rounded-md"
-        />
+        <div className="max-w-full max-h-full">
+          <Image 
+            src={src} 
+            alt={alt}
+            width={800}
+            height={600}
+            style={{ 
+              maxWidth: '100%', 
+              maxHeight: '80vh', 
+              objectFit: 'contain' 
+            }}
+          />
+        </div>
       </div>
     </div>
   )
