@@ -4,10 +4,15 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Home } from 'lucide-react'
-import { FaWhatsapp } from 'react-icons/fa';
+import { ArrowLeft, Home, Upload, X, Copy, Check } from 'lucide-react'
+import { FaWhatsapp } from 'react-icons/fa'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
-// Interface para os itens do carrinho
 interface BoloCarrinho {
   id: number
   nome: string
@@ -16,15 +21,15 @@ interface BoloCarrinho {
   tamanho: string
 }
 
-// Interface para o pedido completo
 interface PedidoCompleto {
-  bolos: BoloCarrinho[];
+  bolos: BoloCarrinho[]
   cliente: {
-    nome: string;
-    telefone: string;
-    observacoes?: string;
-  };
-  pagamento: string;
+    nome: string
+    telefone: string
+    observacoes?: string
+  }
+  pagamento: string
+  comprovanteBase64?: string
 }
 
 function PedidosContent() {
@@ -50,18 +55,62 @@ function PedidosContent() {
   })
 
   const [metodoPagamento, setMetodoPagamento] = useState('pix')
+  const [comprovante, setComprovante] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false)
+  const [copiado, setCopiado] = useState(false)
+  const chavePix = "cris.lima34@hotmail.com" // Substitua pela sua chave PIX real
+
+  const copiarChavePix = async () => {
+    try {
+      await navigator.clipboard.writeText(chavePix)
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 2000) // Reset após 2 segundos
+    } catch (err) {
+      console.error('Erro ao copiar:', err)
+    }
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    setError(null)
+
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('O arquivo deve ter no máximo 5MB')
+        return
+      }
+
+      if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+        setError('Apenas arquivos JPG e PNG são aceitos')
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setComprovante(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (metodoPagamento === 'pix' && !comprovante) {
+      setError('Por favor, envie o comprovante do PIX antes de continuar')
+      return
+    }
+
     const pedidoCompleto: PedidoCompleto = {
       bolos: carrinho,
       cliente: dadosCliente,
-      pagamento: metodoPagamento
+      pagamento: metodoPagamento,
+      comprovanteBase64: comprovante || undefined
     }
 
-    // Preparar mensagem para WhatsApp
     const mensagemWhatsApp = gerarMensagemWhatsApp(pedidoCompleto)
-    const telefoneEmpresa = '+5591982690087' // Substitua pelo número real
+    const telefoneEmpresa = '+5591982690087'
     const linkWhatsApp = `https://wa.me/${telefoneEmpresa}?text=${encodeURIComponent(mensagemWhatsApp)}`
     
     window.open(linkWhatsApp, '_blank')
@@ -86,6 +135,10 @@ function PedidosContent() {
       mensagem += `*Observações:* ${pedido.cliente.observacoes}\n`
     }
 
+    if (metodoPagamento === 'pix') {
+      mensagem += `\n*Comprovante:* Enviado em anexo\n`
+    }
+
     return mensagem
   }
 
@@ -98,12 +151,16 @@ function PedidosContent() {
     setCarrinho(novoCarrinho)
   }
 
+  const removerComprovante = () => {
+    setComprovante(null)
+    setError(null)
+  }
+
   return (
     <div 
       className="container mx-auto px-4 py-8 min-h-screen flex flex-col" 
       style={{ backgroundColor: '#ffcbdb' }}
     >
-      {/* Cabeçalho responsivo com título centralizado */}
       <div className="relative flex items-center justify-between mb-8">
         <Link 
           href="/cardapio" 
@@ -127,7 +184,6 @@ function PedidosContent() {
         onSubmit={handleSubmit} 
         className="w-full max-w-md mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-md flex-grow"
       >
-        {/* Lista de bolos no pedido */}
         {carrinho.length > 0 && (
           <div className="mb-4 overflow-x-auto">
             <h2 className="text-black font-bold mb-2">Bolos no Pedido:</h2>
@@ -156,7 +212,6 @@ function PedidosContent() {
           </div>
         )}
 
-        {/* Campos de formulário com espaçamento e responsividade */}
         <div className="space-y-4">
           <div>
             <label className="block mb-2 text-black text-sm">Nome Completo</label>
@@ -184,14 +239,82 @@ function PedidosContent() {
             <label className="block mb-2 text-black text-sm">Método de Pagamento</label>
             <select
               value={metodoPagamento}
-              onChange={(e) => setMetodoPagamento(e.target.value)}
+              onChange={(e) => {
+                setMetodoPagamento(e.target.value)
+                if (e.target.value === 'pix') {
+                  setIsQRCodeModalOpen(true)
+                } else {
+                  setComprovante(null)
+                  setError(null)
+                }
+              }}
               className="w-full border rounded p-2 text-black bg-white focus:ring-2 focus:ring-pink-300 text-sm"
-            >
+            > 
               <option value="pix">PIX</option>
               <option value="dinheiro">Dinheiro</option>
               <option value="cartao">Cartão</option>
             </select>
           </div>
+
+          {metodoPagamento === 'pix' && (
+            <div className="space-y-2">
+              <label className="block text-black text-sm">
+                Comprovante do PIX
+                <span className="text-red-500">*</span>
+              </label>
+              
+              <button
+                type="button"
+                onClick={() => setIsQRCodeModalOpen(true)}
+                className="w-full text-pink-600 underline text-sm mb-2"
+              >
+                Visualizar QR Code PIX novamente
+              </button>
+              
+              {!comprovante ? (
+                <div className="relative">
+                  <input
+                    type="file"
+                    onChange={handleFileUpload}
+                    accept="image/jpeg,image/png,image/jpg"
+                    className="hidden"
+                    id="comprovante"
+                  />
+                  <label
+                    htmlFor="comprovante"
+                    className="flex items-center justify-center w-full border-2 border-dashed border-pink-300 rounded-lg p-4 text-pink-500 cursor-pointer hover:bg-pink-50"
+                  >
+                    <Upload className="mr-2" />
+                    Enviar Comprovante
+                  </label>
+                </div>
+              ) : (
+                <div className="relative">
+                  <img 
+                    src={comprovante} 
+                    alt="Comprovante" 
+                    className="w-full rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={removerComprovante}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+              
+              {error && (
+                <p className="text-red-500 text-sm">{error}</p>
+              )}
+              
+              <p className="text-gray-500 text-xs">
+                Aceito apenas arquivos JPG e PNG (máx. 5MB)
+              </p>
+            </div>
+          )}
+
           <div>
             <label className="block mb-2 text-black text-sm">Observações</label>
             <textarea
@@ -204,10 +327,9 @@ function PedidosContent() {
           </div>
         </div>
 
-        {/* Botão de envio com feedback de toque */}
         <button
           type="submit"
-          disabled={carrinho.length === 0}
+          disabled={carrinho.length === 0 || (metodoPagamento === 'pix' && !comprovante)}
           className="mt-4 w-full bg-pink-500 text-white py-3 rounded hover:bg-pink-600 
                      disabled:opacity-50 flex items-center justify-center 
                      active:scale-95 transition-transform text-sm md:text-base"
@@ -215,6 +337,53 @@ function PedidosContent() {
           <FaWhatsapp className="mr-2" /> Enviar Pedido pelo WhatsApp
         </button>
       </form>
+
+      <Dialog open={isQRCodeModalOpen} onOpenChange={setIsQRCodeModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>QR Code PIX</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-4">
+            <img
+              src="/img/qrpix.png"
+              alt="QR Code PIX"
+              className="w-64 h-64 object-contain"
+            />
+            <div className="text-center space-y-2">
+              <p className="font-medium">Valor Total: R$ {valorTotal.toFixed(2)}</p>
+              <div className="flex flex-col items-center space-y-2">
+                <p className="text-sm text-gray-500">
+                  Escaneie o QR Code acima ou copie a chave PIX abaixo
+                </p>
+                <div className="flex items-center space-x-2 bg-gray-100 p-2 rounded-lg w-full max-w-xs">
+                  <span className="text-sm text-gray-600 truncate">
+                    {chavePix}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={copiarChavePix}
+                    className="flex items-center justify-center p-1.5 hover:bg-gray-200 rounded-md transition-colors"
+                  >
+                    {copiado ? (
+                      <Check className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-500" />
+                    )}
+                  </button>
+                </div>
+                {copiado && (
+                  <span className="text-xs text-green-500">
+                    Chave PIX copiada!
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-400 mt-4">
+                Após o pagamento, envie o comprovante abaixo
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

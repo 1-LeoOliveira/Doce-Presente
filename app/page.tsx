@@ -20,18 +20,12 @@ export default function Home() {
           Os melhores bolos de pote da cidade!
         </p>
         
-        <div className="flex flex-col md:flex-row justify-center space-y-2 md:space-y-0 md:space-x-4 mb-4">
+        <div className="flex justify-center mb-4">
           <Link 
             href="/cardapio" 
             className="bg-pink-500 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg hover:bg-pink-600 transition text-center"
           >
             Ver Cardápio
-          </Link>
-          <Link 
-            href="/pedidos" 
-            className="bg-pink-300 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg hover:bg-pink-400 transition text-center"
-          >
-            Fazer Pedido
           </Link>
         </div>
 
