@@ -53,7 +53,7 @@
       "descricao": "Bolo de pote com recheio de bacuri, sabor típico da Amazônia",
       "preco": 15.00,
       "tamanhos": ["400ml"],
-      "imagem": "/img/bolos/chocolate.jpeg"
+      "imagem": "/img/bolos/bacuri.jpeg"
     },
     {
       "id": 8,
@@ -69,7 +69,7 @@
       "descricao": "Bolo de chocolate com recheio de brigadeiro cremoso",
       "preco": 15.00,
       "tamanhos": ["400ml"],
-      "imagem": "/img/bolos/chocolate.jpeg"
+      "imagem": "/img/bolos/brigadeiro.jpeg"
     },
     {
       "id": 10,

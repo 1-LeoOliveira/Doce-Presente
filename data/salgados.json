@@ -4,15 +4,15 @@
       "id": 1,
       "nome": "Coxinha de Frango",
       "descricao": "Coxinha tradicional recheada com frango desfiado temperado",
-      "preco": 5.50,
-      "imagem": "/img/salgados/coxinha.png",
+      "preco": 1.50,
+      "imagem": "/img/salgados/coxinhafrango.png",
       "tamanhos": ["Unidade"]
     },
     {
       "id": 2,
       "nome": "Pastel de Carne",
       "descricao": "Pastel crocante recheado com carne moída temperada",
-      "preco": 6.00,
+      "preco": 2.00,
       "imagem": "/img/salgados/pastel.png",
       "tamanhos": ["Unidade"]
     },
@@ -20,32 +20,8 @@
       "id": 3,
       "nome": "Bolinha de Queijo",
       "descricao": "Salgado crocante recheado com queijo especial",
-      "preco": 4.50,
-      "imagem": "/img/salgados/bolinha-queijo.png",
-      "tamanhos": ["Unidade"]
-    },
-    {
-      "id": 4,
-      "nome": "Risole de Camarão",
-      "descricao": "Risole cremoso recheado com camarão",
-      "preco": 7.00,
-      "imagem": "/img/salgados/risole.png",
-      "tamanhos": ["Unidade"]
-    },
-    {
-      "id": 5,
-      "nome": "Kibe",
-      "descricao": "Kibe tradicional com recheio de carne moída e trigo",
-      "preco": 5.00,
-      "imagem": "/img/salgados/kibe.png",
-      "tamanhos": ["Unidade"]
-    },
-    {
-      "id": 6,
-      "nome": "Empada de Frango",
-      "descricao": "Empada com massa amanteigada e recheio de frango",
-      "preco": 6.50,
-      "imagem": "/img/salgados/empada.png",
+      "preco": 1.50,
+      "imagem": "/img/salgados/bolinhaqueijo.png",
       "tamanhos": ["Unidade"]
     }
   ]

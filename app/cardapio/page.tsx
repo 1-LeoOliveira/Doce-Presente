@@ -7,6 +7,7 @@ import salgados from '../../data/salgados.json'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ShoppingCart, Home, Plus, Minus } from 'lucide-react'
+import ImageModal from './ImageModal'
 
 interface ItemCarrinho {
   id: number
@@ -29,6 +30,7 @@ interface Item {
 function CardapioContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'bolos' | 'salgados'>('bolos')
+  const [selectedImage, setSelectedImage] = useState<{src: string, alt: string} | null>(null)
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>(() => {
     const carrinhoParam = searchParams.get('carrinho')
     if (carrinhoParam) {
@@ -108,7 +110,6 @@ function CardapioContent() {
 
     setCarrinho(carrinhoAtualizado)
     
-    // Reset quantity after adding to cart
     atualizarQuantidade(item.id, 1, detalhes.tamanho, tipo)
   }
 
@@ -132,7 +133,8 @@ function CardapioContent() {
             alt={item.nome}
             width={400}
             height={300}
-            className="w-full h-40 md:h-48 object-cover rounded-t-lg"
+            onClick={() => setSelectedImage({ src: item.imagem, alt: item.nome })}
+            className="w-full h-40 md:h-48 object-cover rounded-t-lg cursor-pointer hover:opacity-80 transition"
           />
           <div className="mt-2 md:mt-4">
             <h2 className="text-lg md:text-xl font-semibold text-pink-700">
@@ -253,6 +255,14 @@ function CardapioContent() {
           {renderItems()}
         </div>
       </div>
+
+      {selectedImage && (
+        <ImageModal 
+          src={selectedImage.src} 
+          alt={selectedImage.alt} 
+          onClose={() => setSelectedImage(null)} 
+        />
+      )}
     </div>
   )
 }
