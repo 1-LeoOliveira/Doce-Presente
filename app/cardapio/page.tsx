@@ -44,41 +44,41 @@ function CardapioContent() {
 
   const [itemsQuantidade, setItemsQuantidade] = useState<{[key: string]: {quantidade: number, tamanho: string}}>({})
 
-  const atualizarQuantidade = (itemId: number, quantidade: number, tamanho: string, tipo: 'bolo' | 'salgado') => {
-    const key = `${tipo}-${itemId}`
-    const novaQuantidade = Math.max(1, quantidade)
-    setItemsQuantidade(prev => ({
-      ...prev,
-      [key]: { quantidade: novaQuantidade, tamanho }
-    }))
+  const getItemKey = (itemId: number, tipo: 'bolo' | 'salgado') => `${tipo}-${itemId}`
+
+  const getInitialQuantidade = (itemId: number, tipo: 'bolo' | 'salgado') => {
+    const key = getItemKey(itemId, tipo)
+    return itemsQuantidade[key]?.quantidade || 1
+  }
+
+  const atualizarQuantidade = (itemId: number, novaQuantidade: number, tamanho: string, tipo: 'bolo' | 'salgado') => {
+    const key = getItemKey(itemId, tipo)
+    if (novaQuantidade >= 1) {
+      setItemsQuantidade(prev => ({
+        ...prev,
+        [key]: { quantidade: novaQuantidade, tamanho }
+      }))
+    }
   }
 
   const incrementarQuantidade = (itemId: number, tipo: 'bolo' | 'salgado') => {
-    const key = `${tipo}-${itemId}`
-    const atual = itemsQuantidade[key]?.quantidade || 1
-    atualizarQuantidade(
-      itemId,
-      atual + 1,
-      itemsQuantidade[key]?.tamanho || (tipo === 'bolo' ? '400ml' : 'Unidade'),
-      tipo
-    )
+    const key = getItemKey(itemId, tipo)
+    const quantidadeAtual = getInitialQuantidade(itemId, tipo)
+    const tamanhoAtual = itemsQuantidade[key]?.tamanho || (tipo === 'bolo' ? '400ml' : 'Unidade')
+    atualizarQuantidade(itemId, quantidadeAtual + 1, tamanhoAtual, tipo)
   }
 
   const decrementarQuantidade = (itemId: number, tipo: 'bolo' | 'salgado') => {
-    const key = `${tipo}-${itemId}`
-    const atual = itemsQuantidade[key]?.quantidade || 1
-    if (atual > 1) {
-      atualizarQuantidade(
-        itemId,
-        atual - 1,
-        itemsQuantidade[key]?.tamanho || (tipo === 'bolo' ? '400ml' : 'Unidade'),
-        tipo
-      )
+    const key = getItemKey(itemId, tipo)
+    const quantidadeAtual = getInitialQuantidade(itemId, tipo)
+    if (quantidadeAtual > 1) {
+      const tamanhoAtual = itemsQuantidade[key]?.tamanho || (tipo === 'bolo' ? '400ml' : 'Unidade')
+      atualizarQuantidade(itemId, quantidadeAtual - 1, tamanhoAtual, tipo)
     }
   }
 
   const adicionarAoCarrinho = (item: Item, tipo: 'bolo' | 'salgado') => {
-    const key = `${tipo}-${item.id}`
+    const key = getItemKey(item.id, tipo)
     const detalhes = itemsQuantidade[key] || { 
       quantidade: 1, 
       tamanho: tipo === 'bolo' ? '400ml' : 'Unidade'
@@ -96,7 +96,8 @@ function CardapioContent() {
     const carrinhoAtualizado = [...carrinho]
     const indiceExistente = carrinhoAtualizado.findIndex(i => 
       i.id === itemNoCarrinho.id && 
-      i.tipo === tipo
+      i.tipo === tipo &&
+      i.tamanho === itemNoCarrinho.tamanho
     )
 
     if (indiceExistente > -1) {
@@ -106,6 +107,8 @@ function CardapioContent() {
     }
 
     setCarrinho(carrinhoAtualizado)
+    
+    // Reset quantity after adding to cart
     atualizarQuantidade(item.id, 1, detalhes.tamanho, tipo)
   }
 
@@ -114,79 +117,85 @@ function CardapioContent() {
   const renderItems = () => {
     const items = activeTab === 'bolos' ? bolos : salgados.salgados
     
-    return items.map((item) => (
-      <div 
-        key={`${activeTab}-${item.id}`} 
-        className="border rounded-lg overflow-hidden shadow-md bg-pink-50 p-3 md:p-4"
-      >
-        <Image 
-          src={item.imagem} 
-          alt={item.nome}
-          width={400}
-          height={300}
-          className="w-full h-40 md:h-48 object-cover rounded-t-lg"
-        />
-        <div className="mt-2 md:mt-4">
-          <h2 className="text-lg md:text-xl font-semibold text-pink-700">
-            {item.nome}
-          </h2>
-          <p className="text-sm md:text-base text-gray-600 mb-2">{item.descricao}</p>
-          
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-2 space-y-2 sm:space-y-0">
-            <span className="text-base md:text-lg font-bold text-pink-600">
-              R$ {item.preco.toFixed(2)}
-              {activeTab === 'salgados' && ' / unidade'}
-            </span>
-            {activeTab === 'bolos' && (
-              <select 
-                value={itemsQuantidade[`${activeTab}-${item.id}`]?.tamanho || '400ml'}
-                onChange={(e) => {
-                  atualizarQuantidade(
-                    item.id,
-                    itemsQuantidade[`${activeTab}-${item.id}`]?.quantidade || 1,
-                    e.target.value,
-                    'bolo'
-                  )
-                }}
-                className="border rounded px-2 py-1 text-sm w-full sm:w-auto"
-              >
-                {item.tamanhos && item.tamanhos.map(tamanho => (
-                  <option key={tamanho} value={tamanho}>
-                    {tamanho}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
+    return items.map((item) => {
+      const tipo = activeTab === 'bolos' ? 'bolo' : 'salgado'
+      const key = getItemKey(item.id, tipo)
+      const quantidade = getInitialQuantidade(item.id, tipo)
 
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
-            <div className="flex items-center border rounded">
-              <button
-                onClick={() => decrementarQuantidade(item.id, activeTab === 'bolos' ? 'bolo' : 'salgado')}
-                className="px-2 py-1 text-pink-600 hover:bg-pink-100 rounded-l"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <span className="px-4 py-1 border-x text-center min-w-[40px]">
-                {itemsQuantidade[`${activeTab}-${item.id}`]?.quantidade || 1}
+      return (
+        <div 
+          key={`${activeTab}-${item.id}`} 
+          className="border rounded-lg overflow-hidden shadow-md bg-pink-50 p-3 md:p-4"
+        >
+          <Image 
+            src={item.imagem} 
+            alt={item.nome}
+            width={400}
+            height={300}
+            className="w-full h-40 md:h-48 object-cover rounded-t-lg"
+          />
+          <div className="mt-2 md:mt-4">
+            <h2 className="text-lg md:text-xl font-semibold text-pink-700">
+              {item.nome}
+            </h2>
+            <p className="text-sm md:text-base text-gray-600 mb-2">{item.descricao}</p>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-2 space-y-2 sm:space-y-0">
+              <span className="text-base md:text-lg font-bold text-pink-600">
+                R$ {item.preco.toFixed(2)}
+                {activeTab === 'salgados' && ' / unidade'}
               </span>
-              <button
-                onClick={() => incrementarQuantidade(item.id, activeTab === 'bolos' ? 'bolo' : 'salgado')}
-                className="px-2 py-1 text-pink-600 hover:bg-pink-100 rounded-r"
+              {activeTab === 'bolos' && (
+                <select 
+                  value={itemsQuantidade[key]?.tamanho || '400ml'}
+                  onChange={(e) => {
+                    atualizarQuantidade(
+                      item.id,
+                      quantidade,
+                      e.target.value,
+                      'bolo'
+                    )
+                  }}
+                  className="border rounded px-2 py-1 text-sm w-full sm:w-auto"
+                >
+                  {item.tamanhos && item.tamanhos.map(tamanho => (
+                    <option key={tamanho} value={tamanho}>
+                      {tamanho}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
+              <div className="flex items-center border rounded">
+                <button
+                  onClick={() => decrementarQuantidade(item.id, tipo)}
+                  className="px-2 py-1 text-pink-600 hover:bg-pink-100 rounded-l"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="px-4 py-1 border-x text-center min-w-[40px]">
+                  {quantidade}
+                </span>
+                <button
+                  onClick={() => incrementarQuantidade(item.id, tipo)}
+                  className="px-2 py-1 text-pink-600 hover:bg-pink-100 rounded-r"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+              <button 
+                onClick={() => adicionarAoCarrinho(item, tipo)}
+                className="w-full sm:flex-1 bg-pink-500 text-white py-2 rounded hover:bg-pink-600 text-sm"
               >
-                <Plus className="w-4 h-4" />
+                Adicionar ao Carrinho
               </button>
             </div>
-            <button 
-              onClick={() => adicionarAoCarrinho(item, activeTab === 'bolos' ? 'bolo' : 'salgado')}
-              className="w-full sm:flex-1 bg-pink-500 text-white py-2 rounded hover:bg-pink-600 text-sm"
-            >
-              Adicionar ao Carrinho
-            </button>
           </div>
         </div>
-      </div>
-    ))
+      )
+    })
   }
 
   return (
