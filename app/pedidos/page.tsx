@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Home, Upload, X, Copy, Check } from 'lucide-react'
+import { ArrowLeft, Home, Upload, Copy, Check } from 'lucide-react'
 import { FaWhatsapp } from 'react-icons/fa'
 import {
   Dialog,
