@@ -1,0 +1,114 @@
+{
+  "cascas": [
+    {
+      "id": 1,
+      "nome": "Ao Leite",
+      "descricao": "Chocolate ao leite tradicional, suave e cremoso",
+      "imagem": "/images/ovo-ao-leite.jpg"
+    },
+    {
+      "id": 2,
+      "nome": "Meio Amargo",
+      "descricao": "Chocolate meio amargo com um toque equilibrado de doçura e intensidade",
+      "imagem": "/images/ovo-meio-amargo.jpg"
+    },
+    {
+      "id": 3,
+      "nome": "Amargo",
+      "descricao": "Chocolate amargo intenso, com maior concentração de cacau",
+      "imagem": "/images/ovo-amargo.jpg"
+    },
+    {
+      "id": 4,
+      "nome": "Branco",
+      "descricao": "Chocolate branco cremoso, com sabor suave e adocicado",
+      "imagem": "/images/ovo-branco.jpg"
+    }
+  ],
+  "recheios": [
+    {
+      "id": 1,
+      "nome": "Brigadeiro",
+      "descricao": "Brigadeiro tradicional cremoso"
+    },
+    {
+      "id": 2,
+      "nome": "Ninho com Nutella",
+      "descricao": "Combinação de creme de leite Ninho com Nutella"
+    },
+    {
+      "id": 3,
+      "nome": "Doce de Leite",
+      "descricao": "Doce de leite cremoso artesanal"
+    },
+    {
+      "id": 4,
+      "nome": "Maracujá",
+      "descricao": "Mousse de maracujá refrescante"
+    },
+    {
+      "id": 5,
+      "nome": "Pistache",
+      "descricao": "Creme de pistache com pedacinhos"
+    }
+  ],
+  "tamanhos": [
+    {
+      "id": 1,
+      "gramas": 250,
+      "preco": 45.90
+    },
+    {
+      "id": 2,
+      "gramas": 350,
+      "preco": 59.90
+    },
+    {
+      "id": 3,
+      "gramas": 500,
+      "preco": 79.90
+    }
+  ],
+  "ovosCompletos": [
+    {
+      "id": 1,
+      "nome": "Ovo de Páscoa Ao Leite com Brigadeiro",
+      "descricao": "Delicioso ovo de Páscoa de chocolate ao leite recheado com brigadeiro cremoso",
+      "casca": 1,
+      "recheio": 1,
+      "imagem": "/images/ovo-leite-brigadeiro.jpg"
+    },
+    {
+      "id": 2,
+      "nome": "Ovo de Páscoa Meio Amargo com Ninho e Nutella",
+      "descricao": "Surpreendente ovo de Páscoa meio amargo recheado com creme de leite Ninho e Nutella",
+      "casca": 2,
+      "recheio": 2,
+      "imagem": "/images/ovo-meio-amargo-ninho-nutella.jpg"
+    },
+    {
+      "id": 3,
+      "nome": "Ovo de Páscoa Amargo com Pistache",
+      "descricao": "Sofisticado ovo de Páscoa de chocolate amargo recheado com creme de pistache",
+      "casca": 3,
+      "recheio": 5,
+      "imagem": "/images/ovo-amargo-pistache.jpg"
+    },
+    {
+      "id": 4,
+      "nome": "Ovo de Páscoa Ao Leite com Doce de Leite",
+      "descricao": "Clássico ovo de Páscoa de chocolate ao leite recheado com doce de leite cremoso",
+      "casca": 1,
+      "recheio": 3,
+      "imagem": "/images/ovo-leite-doce-leite.jpg"
+    },
+    {
+      "id": 5,
+      "nome": "Ovo de Páscoa Meio Amargo com Maracujá",
+      "descricao": "Refrescante ovo de Páscoa meio amargo recheado com mousse de maracujá",
+      "casca": 2, 
+      "recheio": 4,
+      "imagem": "/images/ovo-meio-amargo-maracuja.jpg"
+    }
+  ]
+}
