@@ -6,7 +6,7 @@ import ovos from '../../data/ovos.json'
 import bolos from '../../data/bolos.json'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ShoppingCart, Home, Plus, Minus, Package, X, Check } from 'lucide-react'
+import { ShoppingCart, Home, Plus, Minus, X, Check } from 'lucide-react'
 
 interface ItemCarrinho {
   id: string;

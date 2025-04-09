@@ -66,7 +66,7 @@ function CheckoutContent() {
         }
       }
     }
-    
+
     // Se não tiver no localStorage, tenta carregar dos parâmetros de URL
     const carrinhoParam = searchParams.get('carrinho')
     if (carrinhoParam) {
@@ -108,7 +108,7 @@ function CheckoutContent() {
   const getLocation = () => {
     setIsLoadingLocation(true)
     setLocationError('')
-    
+
     if (!navigator.geolocation) {
       setLocationError('Seu navegador não suporta geolocalização')
       setIsLoadingLocation(false)
@@ -126,7 +126,7 @@ function CheckoutContent() {
         setLocationError(`Erro: ${err.message}`)
         setIsLoadingLocation(false)
       },
-      { 
+      {
         enableHighAccuracy: true,
         timeout: 15000,
         maximumAge: 0
@@ -169,7 +169,7 @@ function CheckoutContent() {
     const mensagemWhatsApp = gerarMensagemWhatsApp(pedidoCompleto)
     const telefoneEmpresa = '+5591982690087'
     const linkWhatsApp = `https://wa.me/${telefoneEmpresa}?text=${encodeURIComponent(mensagemWhatsApp)}`
-    
+
     window.open(linkWhatsApp, '_blank')
   }
 
@@ -177,17 +177,17 @@ function CheckoutContent() {
     let mensagem = `*Novo Pedido - Doce Presente*\n\n`
     mensagem += `*Nome:* ${pedido.cliente.nome}\n`
     mensagem += `*Telefone:* ${pedido.cliente.telefone}\n\n`
-    
+
     if (pedido.cliente.endereco) {
       mensagem += `*Endereço:* ${pedido.cliente.endereco}\n\n`
     }
-    
+
     if (pedido.cliente.localizacao) {
       mensagem += `*Localização Exata:*\n`
       mensagem += `https://www.google.com/maps?q=${pedido.cliente.localizacao.lat},${pedido.cliente.localizacao.lng}\n`
       mensagem += `(Lat: ${pedido.cliente.localizacao.lat}, Lng: ${pedido.cliente.localizacao.lng})\n\n`
     }
-    
+
     mensagem += `*Itens do Pedido:*\n`
     pedido.itens.forEach((item) => {
       if (item.tipo === 'ovo' && item.detalhes?.ovosMultiplos) {
@@ -205,16 +205,16 @@ function CheckoutContent() {
         mensagem += `- ${item.nome} (${item.tamanho}) x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
       }
     })
-    
-    mensagem += `\n*Valor Total:* R$ ${pedido.itens.reduce((total, item) => 
+
+    mensagem += `\n*Valor Total:* R$ ${pedido.itens.reduce((total, item) =>
       total + item.preco * item.quantidade, 0).toFixed(2)}\n\n`
-    
+
     mensagem += `*Método de Pagamento:* ${pedido.pagamento.toUpperCase()}\n`
-    
+
     if (pedido.cliente.observacoes) {
       mensagem += `*Observações:* ${pedido.cliente.observacoes}\n`
     }
-  
+
     return mensagem
   }
 
@@ -225,7 +225,7 @@ function CheckoutContent() {
   const removerItem = (itemId: string) => {
     const novoCarrinho = carrinho.filter(item => item.id !== itemId)
     setCarrinho(novoCarrinho)
-    
+
     // Atualiza o localStorage imediatamente
     if (typeof window !== 'undefined') {
       localStorage.setItem('carrinhoPascoa', JSON.stringify(novoCarrinho))
@@ -234,31 +234,31 @@ function CheckoutContent() {
 
 
   return (
-    <div 
-      className="container mx-auto px-4 py-8 min-h-screen flex flex-col" 
+    <div
+      className="container mx-auto px-4 py-8 min-h-screen flex flex-col"
       style={{ backgroundColor: '#ffcbdb' }}
     >
       <div className="relative flex items-center justify-between mb-8">
-        <Link 
-          href="/cardapio" 
+        <Link
+          href="/cardapio"
           className="flex items-center text-pink-700 hover:text-pink-900"
         >
           <ArrowLeft className="mr-2" /> Voltar ao Cardápio
         </Link>
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="flex items-center text-pink-700 hover:text-pink-900"
         >
           <Home className="mr-2" /> Início
         </Link>
       </div>
-      
+
       <h1 className="text-2xl sm:text-3xl font-bold text-center text-black mb-6">
         Finalizar Pedido
       </h1>
-      
-      <form 
-        onSubmit={handleSubmit} 
+
+      <form
+        onSubmit={handleSubmit}
         className="w-full max-w-md mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-md flex-grow"
       >
         {carrinho.length > 0 ? (
@@ -274,7 +274,7 @@ function CheckoutContent() {
                     <div className="flex-1">
                       <h3 className="font-medium text-black">{item.nome}</h3>
                       <p className="text-sm text-gray-600">
-                        {typeof item.tamanho === 'string' ? item.tamanho : `${item.tamanho}g`} • 
+                        {typeof item.tamanho === 'string' ? item.tamanho : `${item.tamanho}g`} •
                         Quantidade: {item.quantidade}
                       </p>
                       {item.tipo === 'ovo' && item.detalhes?.ovosMultiplos && (
@@ -356,7 +356,7 @@ function CheckoutContent() {
                   placeholder="Rua, número, bairro, complemento"
                 />
               </div>
-              
+
               <div>
                 <label className="block mb-2 text-black text-sm">
                   {dadosCliente.endereco ? 'Ou compartilhe sua localização exata' : 'Compartilhe sua localização exata*'}
@@ -365,11 +365,10 @@ function CheckoutContent() {
                   type="button"
                   onClick={getLocation}
                   disabled={isLoadingLocation}
-                  className={`w-full p-3 rounded-lg flex items-center justify-center space-x-2 text-sm ${
-                    isLoadingLocation 
-                      ? 'bg-blue-400 cursor-not-allowed' 
+                  className={`w-full p-3 rounded-lg flex items-center justify-center space-x-2 text-sm ${isLoadingLocation
+                      ? 'bg-blue-400 cursor-not-allowed'
                       : 'bg-blue-600 hover:bg-blue-700 text-white'
-                  }`}
+                    }`}
                 >
                   {isLoadingLocation ? (
                     <>
@@ -408,7 +407,7 @@ function CheckoutContent() {
                   }}
                   className="w-full border rounded p-2 text-black bg-white focus:ring-2 focus:ring-pink-300 text-sm"
                   required
-                > 
+                >
                   {paymentMethods.map(method => (
                     <option key={method.id} value={method.id}>{method.name}</option>
                   ))}
@@ -471,7 +470,9 @@ function CheckoutContent() {
             <img
               src="/img/qrpix.png"
               alt="QR Code PIX"
-              className="w-64 h-64 object-contain"
+              width={256}
+              height={256}
+              className="object-contain"
             />
             <div className="text-center space-y-2">
               <p className="font-medium">Valor Total: R$ {valorTotal.toFixed(2)}</p>
