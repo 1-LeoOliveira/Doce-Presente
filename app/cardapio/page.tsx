@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ovos from '../../data/ovos.json'
 import bolos from '../../data/bolos.json'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ShoppingCart, Home, Plus, Minus, Package, X } from 'lucide-react'
+import { ShoppingCart, Home, Plus, Minus, Package, X, Check } from 'lucide-react'
 
 interface ItemCarrinho {
   id: string;
@@ -29,37 +29,6 @@ interface ItemCarrinho {
   };
 }
 
-// Definição dos pacotes de múltiplos ovos
-const pacotesOvos = [
-  {
-    id: 4,
-    nome: "Duo 150g",
-    descricao: "Pacote com 2 ovos de 150g cada",
-    quantidade: 2,
-    gramasIndividual: 150,
-    gramasTotal: 300,
-    preco: 69.90
-  },
-  {
-    id: 5,
-    nome: "Duo 250g",
-    descricao: "Pacote com 2 ovos de 250g cada",
-    quantidade: 2,
-    gramasIndividual: 250,
-    gramasTotal: 500,
-    preco: 89.90
-  },
-  {
-    id: 6,
-    nome: "Mini Box",
-    descricao: "Caixa com 6 mini ovos de 50g cada",
-    quantidade: 6,
-    gramasIndividual: 50,
-    gramasTotal: 300,
-    preco: 79.90
-  }
-];
-
 function OvosPascoaContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'ovos' | 'bolos'>('ovos')
@@ -68,12 +37,27 @@ function OvosPascoaContent() {
   const [selectedTamanho, setSelectedTamanho] = useState<number>(1)
   const [quantidade, setQuantidade] = useState<number>(1)
   const [itemsQuantidade, setItemsQuantidade] = useState<{ [key: string]: { quantidade: number, tamanho: string } }>({})
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
+  const [confirmationItem, setConfirmationItem] = useState<string>('')
   
   // Estado para controlar múltiplos ovos em pacotes
   const [multiplosOvos, setMultiplosOvos] = useState<Array<{casca: number, recheio: number}>>([])
   const [etapaSelecao, setEtapaSelecao] = useState<number>(0) // 0: individual, 1: primeiro ovo, 2: segundo ovo, etc.
   
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>(() => {
+    // Tenta carregar do localStorage primeiro
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('carrinhoPascoa')
+      if (savedCart) {
+        try {
+          return JSON.parse(savedCart)
+        } catch (error) {
+          console.error('Erro ao parsear o carrinho do localStorage:', error)
+        }
+      }
+    }
+    
+    // Se não tiver no localStorage, tenta carregar dos parâmetros de URL
     const carrinhoParam = searchParams.get('carrinho')
     if (carrinhoParam) {
       try {
@@ -86,35 +70,77 @@ function OvosPascoaContent() {
     return []
   })
 
-  // Funções para ovos de páscoa
-  const encontrarCasca = (id = selectedCasca) => ovos.cascas.find(casca => casca.id === id)
-  const encontrarRecheio = (id = selectedRecheio) => ovos.recheios.find(recheio => recheio.id === id)
+  // Salva o carrinho no localStorage sempre que ele muda
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('carrinhoPascoa', JSON.stringify(carrinho))
+    }
+  }, [carrinho])
+
+  // Mostra confirmação por 3 segundos e depois esconde
+  useEffect(() => {
+    if (showConfirmation) {
+      const timer = setTimeout(() => {
+        setShowConfirmation(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showConfirmation])
+
+  // Função para mostrar confirmação
+  const mostrarConfirmacao = (itemNome: string) => {
+    setConfirmationItem(itemNome)
+    setShowConfirmation(true)
+  }
+
+  // Funções para ovos de páscoa - COM PROTEÇÃO CONTRA UNDEFINED
+  const encontrarCasca = (id = selectedCasca) => {
+    return ovos?.cascas?.find(casca => casca.id === id) || {
+      id: 0,
+      nome: "Casca não especificada",
+      descricao: ""
+    }
+  }
+
+  const encontrarRecheio = (id = selectedRecheio) => {
+    return ovos?.recheios?.find(recheio => recheio.id === id) || {
+      id: 0,
+      nome: "Recheio não especificado", 
+      descricao: ""
+    }
+  }
+
   const encontrarTamanho = (id = selectedTamanho) => {
-    // Verifica se é um tamanho individual ou um pacote
+    // Verifica se é um tamanho individual
     if (id <= 3) {
-      return ovos.tamanhos.find(tamanho => tamanho.id === id)
-    } else {
-      return pacotesOvos.find(pacote => pacote.id === id)
+      return ovos?.tamanhos?.find(tamanho => tamanho.id === id) || {
+        id: 0,
+        gramas: 0,
+        preco: 0,
+        imagem: "/images/ovos/padrao.jpg"
+      }
+    } 
+    // Se for um pacote
+    else {
+      return ovos?.pacotes?.find(pacote => pacote.id === id) || {
+        id: 0,
+        nome: "Pacote não encontrado",
+        descricao: "",
+        preco: 0,
+        imagem: "/images/ovos/padrao.jpg"
+      }
     }
   }
   
-  // Encontrar ovo completo baseado no recheio para a imagem
-  const encontrarOvoImagem = (cascaId = selectedCasca, recheioId = selectedRecheio) => {
-    // Tentar encontrar imagem baseada no recheio selecionado
-    const ovoCompleto = ovos.ovosCompletos.find(ovo => 
-      ovo.casca === cascaId && ovo.recheio === recheioId
-    )
-    
-    if (ovoCompleto) return ovoCompleto.imagem
-    
-    // Caso não encontre a combinação exata, busca pelo menos a casca
-    const cascaInfo = encontrarCasca(cascaId)
-    return cascaInfo?.imagem || "/images/ovo-placeholder.jpg"
+  // Encontrar imagem baseada apenas no tamanho
+  const encontrarOvoImagem = () => {
+    const tamanho = encontrarTamanho()
+    return tamanho?.imagem || "/images/ovos/padrao.jpg"
   }
 
-  // Inicializa o array de múltiplos ovos quando um pacote é selecionado
+  // Restante das funções permanecem iguais...
   const inicializarMultiplosOvos = (pacoteId: number) => {
-    const pacote = pacotesOvos.find(p => p.id === pacoteId)
+    const pacote = ovos.pacotes.find(p => p.id === pacoteId)
     if (!pacote) return
     
     const novosOvos = []
@@ -125,7 +151,7 @@ function OvosPascoaContent() {
       })
     }
     setMultiplosOvos(novosOvos)
-    setEtapaSelecao(1) // Começar a selecionar o primeiro ovo
+    setEtapaSelecao(1)
   }
 
   const incrementarQuantidade = () => {
@@ -165,18 +191,15 @@ function OvosPascoaContent() {
     if (etapaSelecao > 1) {
       setEtapaSelecao(etapaSelecao - 1)
     } else {
-      // Voltar para seleção individual
       setEtapaSelecao(0)
       setMultiplosOvos([])
     }
   }
 
   const adicionarOvoAoCarrinho = () => {
-    // Verifica se estamos lidando com um pacote ou ovo individual
     const tamanho = encontrarTamanho()
     if (!tamanho) return
     
-    // Se for um pacote de múltiplos ovos
     if (selectedTamanho > 3 && multiplosOvos.length > 0) {
       const ovosDetalhados = multiplosOvos.map(ovo => {
         const cascaInfo = encontrarCasca(ovo.casca)
@@ -184,12 +207,12 @@ function OvosPascoaContent() {
         return {
           casca: ovo.casca,
           recheio: ovo.recheio,
-          cascaNome: cascaInfo?.nome || '',
-          recheioNome: recheioInfo?.nome || ''
+          cascaNome: cascaInfo.nome,
+          recheioNome: recheioInfo.nome
         }
       })
       
-      const pacote = pacotesOvos.find(p => p.id === selectedTamanho)
+      const pacote = ovos.pacotes.find(p => p.id === selectedTamanho)
       const itemId = `pacote-ovos-${selectedTamanho}-${Date.now()}`
       const nomeItem = `${pacote?.nome} - ${pacote?.descricao}`
       
@@ -205,16 +228,12 @@ function OvosPascoaContent() {
         }
       }
       
-      const carrinhoAtualizado = [...carrinho, novoItem]
-      setCarrinho(carrinhoAtualizado)
-      
-      // Resetar para valores padrão
+      setCarrinho([...carrinho, novoItem])
       setEtapaSelecao(0)
       setMultiplosOvos([])
       setQuantidade(1)
-    } 
-    // Se for um ovo individual
-    else {
+      mostrarConfirmacao(nomeItem)
+    } else {
       const casca = encontrarCasca()
       const recheio = encontrarRecheio()
       
@@ -249,10 +268,11 @@ function OvosPascoaContent() {
       
       setCarrinho(carrinhoAtualizado)
       setQuantidade(1)
+      mostrarConfirmacao(nomeItem)
     }
   }
 
-  // Funções para bolos (similar ao arquivo page.tsx original)
+  // Funções para bolos
   const getItemKey = (itemId: number) => `bolo-${itemId}`
 
   const getInitialQuantidade = (itemId: number) => {
@@ -317,20 +337,19 @@ function OvosPascoaContent() {
 
     setCarrinho(carrinhoAtualizado)
     atualizarQuantidade(bolo.id, 1, detalhes.tamanho)
+    mostrarConfirmacao(bolo.nome)
   }
 
   const valorTotal = carrinho.reduce((total, item) => total + (item.preco * item.quantidade), 0)
   
+  // Renderiza os bolos
   const renderBolos = () => {
     return bolos.map((bolo) => {
       const key = getItemKey(bolo.id)
       const quantidade = getInitialQuantidade(bolo.id)
 
       return (
-        <div
-          key={`bolo-${bolo.id}`}
-          className="border rounded-lg overflow-hidden shadow-md bg-pink-50 p-3 md:p-4"
-        >
+        <div key={`bolo-${bolo.id}`} className="border rounded-lg overflow-hidden shadow-md bg-pink-50 p-3 md:p-4">
           <Image
             src={bolo.imagem}
             alt={bolo.nome}
@@ -339,9 +358,7 @@ function OvosPascoaContent() {
             className="w-full h-40 md:h-48 object-cover rounded-t-lg"
           />
           <div className="mt-2 md:mt-4">
-            <h2 className="text-lg md:text-xl font-semibold text-pink-700">
-              {bolo.nome}
-            </h2>
+            <h2 className="text-lg md:text-xl font-semibold text-pink-700">{bolo.nome}</h2>
             <p className="text-sm md:text-base text-gray-600 mb-2">{bolo.descricao}</p>
 
             <div className="flex flex-col sm:flex-row justify-between items-center mb-2 space-y-2 sm:space-y-0">
@@ -350,19 +367,11 @@ function OvosPascoaContent() {
               </span>
               <select
                 value={itemsQuantidade[key]?.tamanho || '400ml'}
-                onChange={(e) => {
-                  atualizarQuantidade(
-                    bolo.id,
-                    quantidade,
-                    e.target.value
-                  )
-                }}
+                onChange={(e) => atualizarQuantidade(bolo.id, quantidade, e.target.value)}
                 className="border rounded px-2 py-1 text-sm w-full sm:w-auto"
               >
-                {bolo.tamanhos && bolo.tamanhos.map((tamanho: string) => (
-                  <option key={tamanho} value={tamanho}>
-                    {tamanho}
-                  </option>
+                {bolo.tamanhos?.map((tamanho: string) => (
+                  <option key={tamanho} value={tamanho}>{tamanho}</option>
                 ))}
               </select>
             </div>
@@ -375,9 +384,7 @@ function OvosPascoaContent() {
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <span className="px-4 py-1 border-x text-center min-w-[40px]">
-                  {quantidade}
-                </span>
+                <span className="px-4 py-1 border-x text-center min-w-[40px]">{quantidade}</span>
                 <button
                   onClick={() => incrementarQuantidadeBolo(bolo.id)}
                   className="px-2 py-1 text-pink-600 hover:bg-pink-100 rounded-r"
@@ -404,7 +411,7 @@ function OvosPascoaContent() {
       ? multiplosOvos[etapaSelecao - 1]
       : null
     
-    const pacote = pacotesOvos.find(p => p.id === selectedTamanho)
+    const pacote = ovos.pacotes.find(p => p.id === selectedTamanho)
     
     if (!ovoAtual || !pacote) return null
     
@@ -425,15 +432,15 @@ function OvosPascoaContent() {
         <div className="flex justify-center mb-4">
           <div className="w-full max-w-xs relative">
             <Image
-              src={encontrarOvoImagem(ovoAtual.casca, ovoAtual.recheio)}
-              alt="Visualização do Ovo"
+              src={encontrarOvoImagem()}
+              alt={`Ovo ${etapaSelecao}`}
               width={400}
               height={400}
               className="w-full rounded-lg"
             />
             <div className="absolute bottom-0 left-0 right-0 bg-pink-500 bg-opacity-80 text-white p-2 rounded-b-lg">
               <p className="text-center font-semibold">
-                {encontrarCasca(ovoAtual.casca)?.nome} com {encontrarRecheio(ovoAtual.recheio)?.nome}
+                {encontrarCasca(ovoAtual.casca).nome} com {encontrarRecheio(ovoAtual.recheio).nome}
               </p>
             </div>
           </div>
@@ -505,16 +512,13 @@ function OvosPascoaContent() {
   // Renderização condicional baseada na aba ativa
   const renderContent = () => {
     if (activeTab === 'ovos') {
-      // Se estamos na seleção de múltiplos ovos
       if (etapaSelecao > 0) {
         return renderSelecaoMultiplosOvos()
       }
       
-      // Interface normal para ovos individuais
       const casca = encontrarCasca()
       const recheio = encontrarRecheio()
       const tamanho = encontrarTamanho()
-      const imagemOvo = encontrarOvoImagem()
       const isPacote = selectedTamanho > 3
 
       return (
@@ -523,29 +527,17 @@ function OvosPascoaContent() {
           <div className="bg-pink-50 p-4 rounded-lg">
             <div className="flex justify-center mb-4">
               <div className="w-full max-w-xs relative">
-                {isPacote ? (
-                  <div className="bg-pink-100 p-4 rounded-lg flex items-center justify-center h-64">
-                    <div className="text-center">
-                      <Package className="w-16 h-16 mx-auto text-pink-500 mb-2" />
-                      <h3 className="font-semibold text-lg text-pink-700">
-                        {tamanho?.nome}
-                      </h3>
-                      <p className="text-sm text-gray-600">{tamanho?.descricao}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <Image
-                    src={imagemOvo}
-                    alt={`Ovo de Páscoa ${casca?.nome} com ${recheio?.nome}`}
-                    width={400}
-                    height={400}
-                    className="w-full rounded-lg"
-                  />
-                )}
+                <Image
+                  src={encontrarOvoImagem()}
+                  alt={isPacote ? tamanho.nome : `Ovo de Páscoa ${casca.nome} com ${recheio.nome}`}
+                  width={400}
+                  height={400}
+                  className="w-full rounded-lg"
+                />
                 {!isPacote && (
                   <div className="absolute bottom-0 left-0 right-0 bg-pink-500 bg-opacity-80 text-white p-2 rounded-b-lg">
                     <p className="text-center font-semibold">
-                      {casca?.nome} com {recheio?.nome}
+                      {casca.nome} com {recheio.nome}
                     </p>
                   </div>
                 )}
@@ -558,10 +550,10 @@ function OvosPascoaContent() {
                 {isPacote ? (
                   <>
                     <p className="text-gray-700 font-semibold mt-2">
-                      {tamanho?.nome} - {tamanho?.descricao}
+                      {tamanho.nome} - {tamanho.descricao}
                     </p>
                     <p className="text-gray-700 mt-2">
-                      Preço: <strong className="text-pink-600 text-lg">R$ {tamanho?.preco.toFixed(2)}</strong>
+                      Preço: <strong className="text-pink-600 text-lg">R$ {tamanho.preco.toFixed(2)}</strong>
                     </p>
                     <div className="mt-4 p-3 bg-pink-50 rounded-lg border border-pink-200">
                       <p className="text-pink-700">
@@ -572,22 +564,22 @@ function OvosPascoaContent() {
                 ) : (
                   <>
                     <p className="text-gray-700">
-                      Casca: <strong>{casca?.nome}</strong>
+                      Casca: <strong>{casca.nome}</strong>
                     </p>
                     <p className="text-gray-700">
-                      {casca?.descricao}
+                      {casca.descricao}
                     </p>
                     <p className="text-gray-700 mt-2">
-                      Recheio: <strong>{recheio?.nome}</strong>
+                      Recheio: <strong>{recheio.nome}</strong>
                     </p>
                     <p className="text-gray-700">
-                      {recheio?.descricao}
+                      {recheio.descricao}
                     </p>
                     <p className="text-gray-700 mt-2">
-                      Tamanho: <strong>{tamanho?.gramas}g</strong>
+                      Tamanho: <strong>{tamanho.gramas}g</strong>
                     </p>
                     <p className="text-gray-700 mt-2">
-                      Preço: <strong className="text-pink-600 text-lg">R$ {tamanho?.preco.toFixed(2)}</strong>
+                      Preço: <strong className="text-pink-600 text-lg">R$ {tamanho.preco.toFixed(2)}</strong>
                     </p>
                   </>
                 )}
@@ -628,11 +620,10 @@ function OvosPascoaContent() {
           
           {/* Seleção de Opções */}
           <div>
-            {/* Seleção de Tamanho - mostrada para todos */}
+            {/* Seleção de Tamanho */}
             <div className="mb-6">
               <h2 className="text-xl font-bold text-pink-600 mb-3">1. Escolha o Tamanho</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Tamanhos individuais */}
                 {ovos.tamanhos.map(tamanho => (
                   <div
                     key={tamanho.id}
@@ -649,8 +640,7 @@ function OvosPascoaContent() {
                   </div>
                 ))}
                 
-                {/* Pacotes */}
-                {pacotesOvos.map(pacote => (
+                {ovos.pacotes.map(pacote => (
                   <div
                     key={pacote.id}
                     className={`border p-3 rounded-lg cursor-pointer transition ${
@@ -669,7 +659,7 @@ function OvosPascoaContent() {
               </div>
             </div>
             
-            {/* Seleção de Casca - mostrada apenas para ovos individuais */}
+            {/* Seleção de Casca - apenas para ovos individuais */}
             {!isPacote && (
               <div className="mb-6">
                 <h2 className="text-xl font-bold text-pink-600 mb-3">2. Escolha a Casca</h2>
@@ -693,7 +683,7 @@ function OvosPascoaContent() {
               </div>
             )}
             
-            {/* Seleção de Recheio - mostrada apenas para ovos individuais */}
+            {/* Seleção de Recheio - apenas para ovos individuais */}
             {!isPacote && (
               <div className="mb-6">
                 <h2 className="text-xl font-bold text-pink-600 mb-3">3. Escolha o Recheio</h2>
@@ -730,6 +720,14 @@ function OvosPascoaContent() {
 
   return (
     <div className="container mx-auto px-2 md:px-4 py-4 md:py-8 bg-[#ffcbdb] min-h-screen">
+      {/* Modal de confirmação */}
+      {showConfirmation && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center z-50 animate-fade-in-up">
+          <Check className="mr-2" />
+          <span>{confirmationItem} adicionado ao carrinho!</span>
+        </div>
+      )}
+
       {carrinho.length > 0 && (
         <Link
           href={{
