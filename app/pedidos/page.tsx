@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image';
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
@@ -467,7 +468,7 @@ function CheckoutContent() {
             <DialogTitle>QR Code PIX</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center space-y-4">
-            <img
+            <Image
               src="/img/qrpix.png"
               alt="QR Code PIX"
               width={256}
