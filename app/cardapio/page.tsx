@@ -217,8 +217,6 @@ function OvosPascoaContent() {
   }
 
   const adicionarOvoAoCarrinho = () => {
-    const tamanho = encontrarTamanho()
-    
     if (selectedTamanho > 3 && multiplosOvos.length > 0) {
       const ovosDetalhados = multiplosOvos.map(ovo => {
         const cascaInfo = encontrarCasca(ovo.casca)
