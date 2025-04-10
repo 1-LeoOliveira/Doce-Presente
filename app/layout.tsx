@@ -2,14 +2,14 @@ import type { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
 import './globals.css'
 
-const montserrat = Montserrat({ 
+const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '600', '700']
 })
 
 export const metadata: Metadata = {
-  title: 'Doce presente',
-  description: 'Bolos de Pote Artesanais e Ovos de Colher',
+  title: 'Doce Presente',
+  description: 'Deliciosos Bolos de Pote e Ovos de Páscoa Artesanais feitos com carinho. Sabor que encanta em cada colherada!',
   icons: {
     icon: [
       { url: '/img/Logo.png', sizes: '16x16', type: 'image/png' },
@@ -28,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body 
+      <body
         className={`${montserrat.className} bg-[#ffcbdb] text-black`}
       >
         {children}
