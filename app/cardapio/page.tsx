@@ -29,6 +29,15 @@ interface ItemCarrinho {
   };
 }
 
+interface Bolo {
+  id: number;
+  nome: string;
+  descricao: string;
+  imagem: string;
+  preco: number;
+  tamanhos?: string[];
+}
+
 function OvosPascoaContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'ovos' | 'bolos'>('ovos')
@@ -40,12 +49,10 @@ function OvosPascoaContent() {
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
   const [confirmationItem, setConfirmationItem] = useState<string>('')
   
-  // Estado para controlar múltiplos ovos em pacotes
   const [multiplosOvos, setMultiplosOvos] = useState<Array<{casca: number, recheio: number}>>([])
-  const [etapaSelecao, setEtapaSelecao] = useState<number>(0) // 0: individual, 1: primeiro ovo, 2: segundo ovo, etc.
+  const [etapaSelecao, setEtapaSelecao] = useState<number>(0)
   
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>(() => {
-    // Tenta carregar do localStorage primeiro
     if (typeof window !== 'undefined') {
       const savedCart = localStorage.getItem('carrinhoPascoa')
       if (savedCart) {
@@ -57,7 +64,6 @@ function OvosPascoaContent() {
       }
     }
     
-    // Se não tiver no localStorage, tenta carregar dos parâmetros de URL
     const carrinhoParam = searchParams.get('carrinho')
     if (carrinhoParam) {
       try {
@@ -70,14 +76,12 @@ function OvosPascoaContent() {
     return []
   })
 
-  // Salva o carrinho no localStorage sempre que ele muda
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('carrinhoPascoa', JSON.stringify(carrinho))
     }
   }, [carrinho])
 
-  // Mostra confirmação por 3 segundos e depois esconde
   useEffect(() => {
     if (showConfirmation) {
       const timer = setTimeout(() => {
@@ -87,13 +91,11 @@ function OvosPascoaContent() {
     }
   }, [showConfirmation])
 
-  // Função para mostrar confirmação
   const mostrarConfirmacao = (itemNome: string) => {
     setConfirmationItem(itemNome)
     setShowConfirmation(true)
   }
 
-  // Funções para ovos de páscoa - COM PROTEÇÃO CONTRA UNDEFINED
   const encontrarCasca = (id = selectedCasca) => {
     return ovos?.cascas?.find(casca => casca.id === id) || {
       id: 0,
@@ -111,7 +113,6 @@ function OvosPascoaContent() {
   }
 
   const encontrarTamanho = (id = selectedTamanho) => {
-    // Verifica se é um tamanho individual
     if (id <= 3) {
       return ovos?.tamanhos?.find(tamanho => tamanho.id === id) || {
         id: 0,
@@ -119,9 +120,7 @@ function OvosPascoaContent() {
         preco: 0,
         imagem: "/images/ovos/padrao.jpg"
       }
-    } 
-    // Se for um pacote
-    else {
+    } else {
       return ovos?.pacotes?.find(pacote => pacote.id === id) || {
         id: 0,
         nome: "Pacote não encontrado",
@@ -132,13 +131,11 @@ function OvosPascoaContent() {
     }
   }
   
-  // Encontrar imagem baseada apenas no tamanho
   const encontrarOvoImagem = () => {
     const tamanho = encontrarTamanho()
     return tamanho?.imagem || "/images/ovos/padrao.jpg"
   }
 
-  // Restante das funções permanecem iguais...
   const inicializarMultiplosOvos = (pacoteId: number) => {
     const pacote = ovos.pacotes.find(p => p.id === pacoteId)
     if (!pacote) return
@@ -146,7 +143,7 @@ function OvosPascoaContent() {
     const novosOvos = []
     for (let i = 0; i < pacote.quantidade; i++) {
       novosOvos.push({
-        casca: 1, // Valores padrão
+        casca: 1,
         recheio: 1
       })
     }
@@ -236,6 +233,7 @@ function OvosPascoaContent() {
     } else {
       const casca = encontrarCasca()
       const recheio = encontrarRecheio()
+      const tamanho = encontrarTamanho()
       
       if (!casca || !recheio || !tamanho) return
       
@@ -272,7 +270,6 @@ function OvosPascoaContent() {
     }
   }
 
-  // Funções para bolos
   const getItemKey = (itemId: number) => `bolo-${itemId}`
 
   const getInitialQuantidade = (itemId: number) => {
@@ -306,7 +303,7 @@ function OvosPascoaContent() {
     }
   }
 
-  const adicionarBoloAoCarrinho = (bolo: any) => {
+  const adicionarBoloAoCarrinho = (bolo: Bolo) => {
     const key = getItemKey(bolo.id)
     const detalhes = itemsQuantidade[key] || {
       quantidade: 1,
@@ -342,9 +339,8 @@ function OvosPascoaContent() {
 
   const valorTotal = carrinho.reduce((total, item) => total + (item.preco * item.quantidade), 0)
   
-  // Renderiza os bolos
   const renderBolos = () => {
-    return bolos.map((bolo) => {
+    return bolos.map((bolo: Bolo) => {
       const key = getItemKey(bolo.id)
       const quantidade = getInitialQuantidade(bolo.id)
 
@@ -405,7 +401,6 @@ function OvosPascoaContent() {
     })
   }
 
-  // Renderização da seleção de sabores para ovo múltiplo
   const renderSelecaoMultiplosOvos = () => {
     const ovoAtual = etapaSelecao > 0 && etapaSelecao <= multiplosOvos.length 
       ? multiplosOvos[etapaSelecao - 1]
@@ -446,7 +441,6 @@ function OvosPascoaContent() {
           </div>
         </div>
         
-        {/* Cascas */}
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-pink-600 mb-2">Casca:</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -467,7 +461,6 @@ function OvosPascoaContent() {
           </div>
         </div>
         
-        {/* Recheios */}
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-pink-600 mb-2">Recheio:</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -509,7 +502,6 @@ function OvosPascoaContent() {
     )
   }
 
-  // Renderização condicional baseada na aba ativa
   const renderContent = () => {
     if (activeTab === 'ovos') {
       if (etapaSelecao > 0) {
@@ -523,7 +515,6 @@ function OvosPascoaContent() {
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Visualização do Ovo */}
           <div className="bg-pink-50 p-4 rounded-lg">
             <div className="flex justify-center mb-4">
               <div className="w-full max-w-xs relative">
@@ -618,9 +609,7 @@ function OvosPascoaContent() {
             </div>
           </div>
           
-          {/* Seleção de Opções */}
           <div>
-            {/* Seleção de Tamanho */}
             <div className="mb-6">
               <h2 className="text-xl font-bold text-pink-600 mb-3">1. Escolha o Tamanho</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -659,7 +648,6 @@ function OvosPascoaContent() {
               </div>
             </div>
             
-            {/* Seleção de Casca - apenas para ovos individuais */}
             {!isPacote && (
               <div className="mb-6">
                 <h2 className="text-xl font-bold text-pink-600 mb-3">2. Escolha a Casca</h2>
@@ -683,7 +671,6 @@ function OvosPascoaContent() {
               </div>
             )}
             
-            {/* Seleção de Recheio - apenas para ovos individuais */}
             {!isPacote && (
               <div className="mb-6">
                 <h2 className="text-xl font-bold text-pink-600 mb-3">3. Escolha o Recheio</h2>
@@ -720,7 +707,6 @@ function OvosPascoaContent() {
 
   return (
     <div className="container mx-auto px-2 md:px-4 py-4 md:py-8 bg-[#ffcbdb] min-h-screen">
-      {/* Modal de confirmação */}
       {showConfirmation && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center z-50 animate-fade-in-up">
           <Check className="mr-2" />
