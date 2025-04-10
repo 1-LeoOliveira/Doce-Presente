@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Home, MapPin, Copy, Check, Trash2 } from 'lucide-react'
+import { ArrowLeft, Home, Copy, Check, Trash2 } from 'lucide-react'
 import { FaWhatsapp } from 'react-icons/fa'
 import {
   Dialog,
@@ -47,12 +47,6 @@ interface PedidoCompleto {
   pagamento: string
 }
 
-const paymentMethods = [
-  { id: 'dinheiro', name: 'Dinheiro' },
-  { id: 'pix', name: 'PIX' },
-  { id: 'cartao', name: 'Cartão' }
-]
-
 function CheckoutContent() {
   const searchParams = useSearchParams()
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>(() => {
@@ -79,19 +73,17 @@ function CheckoutContent() {
     return []
   })
 
-  const [dadosCliente, setDadosCliente] = useState({
+  const [dadosCliente] = useState({
     nome: '',
     telefone: '',
     endereco: '',
     observacoes: ''
   })
 
-  const [localizacao, setLocalizacao] = useState<{ lat: number; lng: number } | null>(null)
-  const [metodoPagamento, setMetodoPagamento] = useState('dinheiro')
+  const [localizacao] = useState<{ lat: number; lng: number } | null>(null)
+  const [metodoPagamento] = useState('dinheiro')
   const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false)
   const [copiado, setCopiado] = useState(false)
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
-  const [locationError, setLocationError] = useState('')
   const chavePix = "cris.lima34@hotmail.com"
 
   const copiarChavePix = async () => {
@@ -102,35 +94,6 @@ function CheckoutContent() {
     } catch (err) {
       console.error('Erro ao copiar:', err)
     }
-  }
-
-  const getLocation = () => {
-    setIsLoadingLocation(true)
-    setLocationError('')
-
-    if (!navigator.geolocation) {
-      setLocationError('Seu navegador não suporta geolocalização')
-      setIsLoadingLocation(false)
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords
-        setLocalizacao({ lat: latitude, lng: longitude })
-        setIsLoadingLocation(false)
-        setDadosCliente(prev => ({ ...prev, endereco: '' }))
-      },
-      (err) => {
-        setLocationError(`Erro: ${err.message}`)
-        setIsLoadingLocation(false)
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-      }
-    )
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -152,7 +115,7 @@ function CheckoutContent() {
     }
 
     if (!dadosCliente.endereco && !localizacao) {
-      setLocationError('Por favor, informe o endereço ou compartilhe sua localização')
+      alert('Por favor, informe o endereço ou compartilhe sua localização')
       return
     }
 
