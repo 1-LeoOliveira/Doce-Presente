@@ -17,7 +17,7 @@ export default function Home() {
           Doce Presente
         </h1>
         <p className="text-base md:text-xl mb-4 md:mb-8 text-gray-700 px-2">
-          Os melhores bolos de pote da cidade!
+          Carinho em forma de sabor
         </p>
         
         <div className="flex justify-center mb-4">
