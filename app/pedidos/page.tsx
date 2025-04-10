@@ -182,17 +182,17 @@ function CheckoutContent() {
     let mensagem = `*Novo Pedido - Doce Presente*\n\n`
     mensagem += `*Nome:* ${pedido.cliente.nome}\n`
     mensagem += `*Telefone:* ${pedido.cliente.telefone}\n\n`
-
+  
     if (pedido.cliente.endereco) {
       mensagem += `*Endereço:* ${pedido.cliente.endereco}\n\n`
     }
-
+  
     if (pedido.cliente.localizacao) {
       mensagem += `*Localização Exata:*\n`
       mensagem += `https://www.google.com/maps?q=${pedido.cliente.localizacao.lat},${pedido.cliente.localizacao.lng}\n`
       mensagem += `(Lat: ${pedido.cliente.localizacao.lat}, Lng: ${pedido.cliente.localizacao.lng})\n\n`
     }
-
+  
     mensagem += `*Itens do Pedido:*\n`
     pedido.itens.forEach((item) => {
       if (item.tipo === 'ovo' && item.detalhes?.ovosMultiplos) {
@@ -210,16 +210,16 @@ function CheckoutContent() {
         mensagem += `- ${item.nome} (${item.tamanho}) x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
       }
     })
-
+  
     mensagem += `\n*Valor Total:* R$ ${pedido.itens.reduce((total, item) => 
       total + item.preco * item.quantidade, 0).toFixed(2)}\n\n`
-
-    mensagem += `*Método de Pagamento:* ${pedido.pagamento.toUpperCase()}\n`
-
+  
+    mensagem += `*Método de Pagamento:* ${paymentMethods.find(m => m.id === pedido.pagamento)?.name || pedido.pagamento.toUpperCase()}\n`
+  
     if (pedido.cliente.observacoes) {
       mensagem += `*Observações:* ${pedido.cliente.observacoes}\n`
     }
-
+  
     return mensagem
   }
 
