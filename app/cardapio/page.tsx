@@ -38,6 +38,26 @@ interface Bolo {
   tamanhos?: string[];
 }
 
+interface TamanhoOvo {
+  id: number;
+  gramas: number;
+  preco: number;
+  imagem: string;
+}
+
+interface PacoteOvos {
+  id: number;
+  nome: string;
+  descricao: string;
+  quantidade: number;
+  gramasIndividual: number;
+  gramasTotal: number;
+  preco: number;
+  imagem: string;
+}
+
+type Tamanho = TamanhoOvo | PacoteOvos;
+
 function OvosPascoaContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'ovos' | 'bolos'>('ovos')
@@ -112,7 +132,7 @@ function OvosPascoaContent() {
     }
   }
 
-  const encontrarTamanho = (id = selectedTamanho) => {
+  const encontrarTamanho = (id = selectedTamanho): Tamanho => {
     if (id <= 3) {
       return ovos?.tamanhos?.find(tamanho => tamanho.id === id) || {
         id: 0,
@@ -125,6 +145,9 @@ function OvosPascoaContent() {
         id: 0,
         nome: "Pacote não encontrado",
         descricao: "",
+        quantidade: 0,
+        gramasIndividual: 0,
+        gramasTotal: 0,
         preco: 0,
         imagem: "/images/ovos/padrao.jpg"
       }
@@ -133,7 +156,7 @@ function OvosPascoaContent() {
   
   const encontrarOvoImagem = () => {
     const tamanho = encontrarTamanho()
-    return tamanho?.imagem || "/images/ovos/padrao.jpg"
+    return tamanho.imagem
   }
 
   const inicializarMultiplosOvos = (pacoteId: number) => {
@@ -163,7 +186,7 @@ function OvosPascoaContent() {
 
   const precoTotal = () => {
     const tamanho = encontrarTamanho()
-    return tamanho ? tamanho.preco * quantidade : 0
+    return tamanho.preco * quantidade
   }
 
   const atualizarOvoNoIndice = (index: number, campo: 'casca' | 'recheio', valor: number) => {
@@ -195,7 +218,6 @@ function OvosPascoaContent() {
 
   const adicionarOvoAoCarrinho = () => {
     const tamanho = encontrarTamanho()
-    if (!tamanho) return
     
     if (selectedTamanho > 3 && multiplosOvos.length > 0) {
       const ovosDetalhados = multiplosOvos.map(ovo => {
@@ -235,17 +257,20 @@ function OvosPascoaContent() {
       const recheio = encontrarRecheio()
       const tamanho = encontrarTamanho()
       
-      if (!casca || !recheio || !tamanho) return
-      
       const itemId = `ovo-${selectedCasca}-${selectedRecheio}-${selectedTamanho}`
-      const nomeItem = `Ovo de Páscoa ${casca.nome} com ${recheio.nome} (${tamanho.gramas}g)`
+      const nomeItem = `Ovo de Páscoa ${casca.nome} com ${recheio.nome} (${
+        'gramas' in tamanho ? `${tamanho.gramas}g` : 
+        'gramasIndividual' in tamanho ? `${tamanho.gramasIndividual}g cada` : 
+        'tamanho padrão'
+      })`
       
       const novoItem: ItemCarrinho = {
         id: itemId,
         nome: nomeItem,
         preco: tamanho.preco,
         quantidade: quantidade,
-        tamanho: tamanho.gramas,
+        tamanho: 'gramas' in tamanho ? tamanho.gramas : 
+               'gramasTotal' in tamanho ? tamanho.gramasTotal : 0,
         tipo: 'ovo',
         detalhes: {
           casca: selectedCasca,
@@ -520,7 +545,7 @@ function OvosPascoaContent() {
               <div className="w-full max-w-xs relative">
                 <Image
                   src={encontrarOvoImagem()}
-                  alt={isPacote ? tamanho.nome : `Ovo de Páscoa ${casca.nome} com ${recheio.nome}`}
+                  alt={isPacote ? 'nome' in tamanho ? tamanho.nome : 'Pacote de ovos' : `Ovo de Páscoa ${casca.nome} com ${recheio.nome}`}
                   width={400}
                   height={400}
                   className="w-full rounded-lg"
@@ -541,7 +566,7 @@ function OvosPascoaContent() {
                 {isPacote ? (
                   <>
                     <p className="text-gray-700 font-semibold mt-2">
-                      {tamanho.nome} - {tamanho.descricao}
+                      {'nome' in tamanho ? tamanho.nome : 'Pacote'} - {'descricao' in tamanho ? tamanho.descricao : ''}
                     </p>
                     <p className="text-gray-700 mt-2">
                       Preço: <strong className="text-pink-600 text-lg">R$ {tamanho.preco.toFixed(2)}</strong>
@@ -567,7 +592,7 @@ function OvosPascoaContent() {
                       {recheio.descricao}
                     </p>
                     <p className="text-gray-700 mt-2">
-                      Tamanho: <strong>{tamanho.gramas}g</strong>
+                      Tamanho: <strong>{'gramas' in tamanho ? `${tamanho.gramas}g` : 'tamanho padrão'}</strong>
                     </p>
                     <p className="text-gray-700 mt-2">
                       Preço: <strong className="text-pink-600 text-lg">R$ {tamanho.preco.toFixed(2)}</strong>
