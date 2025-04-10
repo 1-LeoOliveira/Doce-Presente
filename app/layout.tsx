@@ -9,7 +9,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: 'Doce presente',
-  description: 'Bolos de Pote Artesanais',
+  description: 'Bolos de Pote Artesanais e Ovos de Colher',
   icons: {
     icon: [
       { url: '/img/Logo.png', sizes: '16x16', type: 'image/png' },
