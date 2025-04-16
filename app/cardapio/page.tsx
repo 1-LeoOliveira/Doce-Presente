@@ -140,18 +140,21 @@ function OvosPascoaContent() {
   const encontrarTamanho = (id = selectedTamanho): Tamanho => {
     const tamanhoIndividual = ovos?.tamanhos?.find(t => t.id === id);
     if (tamanhoIndividual) return tamanhoIndividual;
-
+  
     const pacote = ovos?.pacotes?.find(p => p.id === id);
     if (pacote) return pacote;
-
+  
+    // Adicionando as propriedades que faltam para satisfazer o tipo PacoteOvos
     return {
       id: 0,
       nome: "Produto não encontrado",
       tipo: "indefinido",
+      descricao: "", // Propriedade adicionada
+      quantidade: 0, // Propriedade adicionada
       preco: 0,
       imagem: "/images/ovos/padrao.jpg"
     };
-  }
+  };
 
   const encontrarOvoImagem = () => {
     const tamanho = encontrarTamanho()
