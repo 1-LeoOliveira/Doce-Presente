@@ -196,18 +196,18 @@ function CheckoutContent() {
     mensagem += `*Itens do Pedido:*\n`
     pedido.itens.forEach((item) => {
       if (item.tipo === 'ovo' && item.detalhes?.ovosMultiplos) {
-        mensagem += `- ${item.nome} (${item.tamanho}g) x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
+        mensagem += `- ${item.nome} x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
         item.detalhes.ovosMultiplos.forEach((ovo, index) => {
           mensagem += `  → Ovo ${index + 1}: Casca ${ovo.cascaNome} com Recheio ${ovo.recheioNome}\n`
         })
       } else if (item.tipo === 'ovo') {
-        mensagem += `- ${item.nome} (${item.tamanho}g) x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
+        mensagem += `- ${item.nome} x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
         if (item.detalhes?.cascaNome && item.detalhes?.recheioNome) {
           mensagem += `  → Casca: ${item.detalhes.cascaNome}\n`
           mensagem += `  → Recheio: ${item.detalhes.recheioNome}\n`
         }
       } else {
-        mensagem += `- ${item.nome} (${item.tamanho}) x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
+        mensagem += `- ${item.nome} x${item.quantidade}: R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
       }
     })
   
