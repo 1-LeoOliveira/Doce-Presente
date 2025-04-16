@@ -2,19 +2,23 @@
   "cascas": [
     {
       "id": 1,
-      "nome": "Ao Leite"
+      "nome": "Ao Leite",
+      "descricao": ""
     },
     {
       "id": 2,
-      "nome": "Meio Amargo"
+      "nome": "Meio Amargo",
+      "descricao": ""
     },
     {
       "id": 3,
-      "nome": "Amargo"
+      "nome": "Amargo",
+      "descricao": ""
     },
     {
       "id": 4,
-      "nome": "Branco"
+      "nome": "Branco",
+      "descricao": ""
     }
   ],
   "recheios": [
