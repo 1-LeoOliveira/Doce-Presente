@@ -140,10 +140,10 @@ function OvosPascoaContent() {
   const encontrarTamanho = (id = selectedTamanho): Tamanho => {
     const tamanhoIndividual = ovos?.tamanhos?.find(t => t.id === id);
     if (tamanhoIndividual) return tamanhoIndividual;
-  
+
     const pacote = ovos?.pacotes?.find(p => p.id === id);
     if (pacote) return pacote;
-  
+
     // Adicionando as propriedades que faltam para satisfazer o tipo PacoteOvos
     return {
       id: 0,
@@ -522,15 +522,15 @@ function OvosPascoaContent() {
                 <div
                   key={recheio.id}
                   className={`border p-2 rounded-lg cursor-pointer transition ${ativo ? 'border-pink-500 bg-pink-100' :
-                      desativado ? 'opacity-50 cursor-not-allowed' :
-                        'border-gray-200 hover:border-pink-300'
+                    desativado ? 'opacity-50 cursor-not-allowed' :
+                      'border-gray-200 hover:border-pink-300'
                     }`}
                   onClick={() => !desativado && atualizarOvoNoIndice(etapaSelecao - 1, 'recheio', recheio.id)}
                 >
                   <div className="flex items-center">
                     <div className={`w-4 h-4 rounded-full mr-2 ${ativo ? 'bg-pink-500' :
-                        desativado ? 'border border-gray-300 bg-gray-100' :
-                          'border border-gray-300'
+                      desativado ? 'border border-gray-300 bg-gray-100' :
+                        'border border-gray-300'
                       }`}></div>
                     <span>{recheio.nome}</span>
                     {jaUsado && ovoAtual.recheio !== recheio.id && (
@@ -707,7 +707,9 @@ function OvosPascoaContent() {
                       <div className={`w-4 h-4 rounded-full mr-2 ${selectedTamanho === tamanho.id ? 'bg-pink-500' : 'border border-gray-300'}`}></div>
                       <h3 className="font-semibold">{tamanho.nome}</h3>
                     </div>
-                    {tamanho.gramas && <p className="text-sm text-gray-600">{tamanho.gramas}g</p>}
+                    {((tamanho as TamanhoOvo).gramas !== undefined) && (
+                      <p className="text-sm text-gray-600">{(tamanho as TamanhoOvo).gramas}g</p>
+                    )}
                     <p className="text-sm text-gray-600">R$ {tamanho.preco.toFixed(2)}</p>
                     {/* Adicione esta linha para mostrar a descrição */}
                     <p className="text-xs text-gray-500 mt-1">{tamanho.descricao}</p>
