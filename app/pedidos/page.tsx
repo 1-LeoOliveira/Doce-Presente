@@ -172,7 +172,7 @@ function CheckoutContent() {
     }
 
     const mensagemWhatsApp = gerarMensagemWhatsApp(pedidoCompleto)
-    const telefoneEmpresa = '+5591982690087'
+    const telefoneEmpresa = '+5591982170128'
     const linkWhatsApp = `https://wa.me/${telefoneEmpresa}?text=${encodeURIComponent(mensagemWhatsApp)}`
 
     window.open(linkWhatsApp, '_blank')
