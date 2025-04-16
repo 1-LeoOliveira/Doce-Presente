@@ -66,6 +66,11 @@
       "id": 9,
       "nome": "Cupulate",
       "descricao": "Creme de cupulate (chocolate de cupuaçu), exclusivo da região norte"
+    },
+    {
+      "id": 10,
+      "nome": "Frango",
+      "descricao": "Delicioso recheio de frango e 9 coxinhas de frango"
     }
    
   ],
@@ -88,7 +93,7 @@
     },
     {
       "id": 7,
-      "nome": "Mini Caixa folk",
+      "nome": "Mini Caixa flork",
       "tipo": "individual",
       "preco": 19.00,
       "imagem": "/img/ovos/folk.jpeg",

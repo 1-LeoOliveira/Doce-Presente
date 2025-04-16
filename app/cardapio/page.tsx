@@ -308,6 +308,8 @@ function OvosPascoaContent() {
   const adicionarOvoAoCarrinho = () => {
     const tamanho = encontrarTamanho()
     const isPacote = 'quantidade' in tamanho;
+    const isOvoSalgado = tamanho.id === 6;
+    const isMiniCaixaFolk = tamanho.id === 7;
 
     if (isPacote && multiplosOvos.length > 0) {
       const ovosDetalhados = multiplosOvos.map(ovo => {
@@ -342,11 +344,19 @@ function OvosPascoaContent() {
       setQuantidade(1)
       mostrarConfirmacao(nomeItem)
     } else {
-      const casca = encontrarCasca()
-      const recheio = encontrarRecheio()
+      const casca = isOvoSalgado || isMiniCaixaFolk ? null : encontrarCasca()
+      const recheio = isOvoSalgado ?
+        { id: 10, nome: "Frango", descricao: "Delicioso recheio de frango" } :
+        isMiniCaixaFolk ?
+          { id: 0, nome: "Sem recheio", descricao: "" } :
+          encontrarRecheio()
 
-      const itemId = `ovo-${selectedCasca}-${selectedRecheio}-${selectedTamanho}`
-      const nomeItem = `Ovo de Páscoa ${casca.nome} com ${recheio.nome} (${tamanho.nome})`
+      const itemId = `ovo-${isOvoSalgado || isMiniCaixaFolk ? 'especial' : selectedCasca}-${isOvoSalgado ? 'frango' : isMiniCaixaFolk ? 'semrecheio' : selectedRecheio}-${selectedTamanho}`
+      const nomeItem = isOvoSalgado ?
+        `Ovo Salgado de Frango (${tamanho.nome})` :
+        isMiniCaixaFolk ?
+          `Mini Caixa Folk (${tamanho.nome})` :
+          `Ovo de Páscoa ${casca?.nome} com ${recheio.nome} (${tamanho.nome})`
 
       const novoItem: ItemCarrinho = {
         id: itemId,
@@ -355,10 +365,10 @@ function OvosPascoaContent() {
         quantidade: quantidade,
         tamanho: 'gramas' in tamanho ? tamanho.gramas ?? tamanho.nome : tamanho.nome,
         tipo: 'ovo',
-        detalhes: {
+        detalhes: isOvoSalgado || isMiniCaixaFolk ? undefined : {
           casca: selectedCasca,
           recheio: selectedRecheio,
-          cascaNome: casca.nome,
+          cascaNome: casca?.nome,
           recheioNome: recheio.nome
         }
       }
@@ -575,6 +585,8 @@ function OvosPascoaContent() {
       const tamanho = encontrarTamanho()
       const isPacote = 'quantidade' in tamanho
       const isKitConfeiteiro = tamanho.id === 9
+      const isOvoSalgado = tamanho.id === 6
+      const isMiniCaixaFolk = tamanho.id === 7
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -588,10 +600,10 @@ function OvosPascoaContent() {
                   height={400}
                   className="w-full rounded-lg"
                 />
-                {!isPacote && (
+                {!isPacote && !isOvoSalgado && !isMiniCaixaFolk && (
                   <div className="absolute bottom-0 left-0 right-0 bg-pink-500 bg-opacity-80 text-white p-2 rounded-b-lg">
                     <p className="text-center font-semibold">
-                      {casca.nome} com {recheio.nome}
+                      {isOvoSalgado ? 'Frango' : isMiniCaixaFolk ? 'Mini Caixa' : `${casca.nome} com ${recheio.nome}`}
                     </p>
                   </div>
                 )}
@@ -609,26 +621,34 @@ function OvosPascoaContent() {
                     <p className="text-gray-700 mt-2">
                       Preço: <strong className="text-pink-600 text-lg">R$ {tamanho.preco.toFixed(2)}</strong>
                     </p>
-                    <div className="mt-4 p-3 bg-pink-50 rounded-lg border border-pink-200">
-                      <p className="text-pink-700">
-                        <strong>Com este pacote você pode escolher sabores diferentes para cada ovo!</strong>
-                      </p>
-                    </div>
+                    {!isMiniCaixaFolk && (
+                      <div className="mt-4 p-3 bg-pink-50 rounded-lg border border-pink-200">
+                        <p className="text-pink-700">
+                          <strong>Com este pacote você pode escolher sabores diferentes para cada ovo!</strong>
+                        </p>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <>
-                    <p className="text-gray-700">
-                      Casca: <strong>{casca.nome}</strong>
-                    </p>
-                    <p className="text-gray-700">
-                      {casca.descricao}
-                    </p>
+                    {!isOvoSalgado && !isMiniCaixaFolk && (
+                      <>
+                        <p className="text-gray-700">
+                          Casca: <strong>{casca.nome}</strong>
+                        </p>
+                        <p className="text-gray-700">
+                          {casca.descricao}
+                        </p>
+                      </>
+                    )}
                     <p className="text-gray-700 mt-2">
-                      Recheio: <strong>{recheio.nome}</strong>
+                      Recheio: <strong>{isOvoSalgado ? 'Frango' : isMiniCaixaFolk ? 'Não possui recheio' : recheio.nome}</strong>
                     </p>
-                    <p className="text-gray-700">
-                      {recheio.descricao}
-                    </p>
+                    {!isMiniCaixaFolk && (
+                      <p className="text-gray-700">
+                        {isOvoSalgado ? 'Delicioso recheio de frango' : recheio.descricao}
+                      </p>
+                    )}
                     <p className="text-gray-700 mt-2">
                       Tamanho: <strong>{tamanho.nome}</strong>
                     </p>
@@ -684,10 +704,10 @@ function OvosPascoaContent() {
               </div>
 
               <button
-                onClick={isPacote ? () => inicializarMultiplosOvos(selectedTamanho) : adicionarOvoAoCarrinho}
+                onClick={isPacote && !isMiniCaixaFolk ? () => inicializarMultiplosOvos(selectedTamanho) : adicionarOvoAoCarrinho}
                 className="w-full bg-pink-500 text-white py-3 rounded-lg hover:bg-pink-600 mt-4 font-semibold"
               >
-                {isPacote ? "Escolher Sabores" : "Adicionar ao Carrinho"}
+                {isPacote && !isMiniCaixaFolk ? "Escolher Sabores" : "Adicionar ao Carrinho"}
               </button>
             </div>
           </div>
@@ -701,7 +721,13 @@ function OvosPascoaContent() {
                     key={tamanho.id}
                     className={`border p-3 rounded-lg cursor-pointer transition ${selectedTamanho === tamanho.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-300'
                       }`}
-                    onClick={() => setSelectedTamanho(tamanho.id)}
+                    onClick={() => {
+                      setSelectedTamanho(tamanho.id)
+                      // Definir recheio padrão para Frango se for o ovo salgado
+                      if (tamanho.id === 6) {
+                        setSelectedRecheio(10) // Assumindo que 10 é o ID do recheio de Frango
+                      }
+                    }}
                   >
                     <div className="flex items-center mb-2">
                       <div className={`w-4 h-4 rounded-full mr-2 ${selectedTamanho === tamanho.id ? 'bg-pink-500' : 'border border-gray-300'}`}></div>
@@ -711,7 +737,6 @@ function OvosPascoaContent() {
                       <p className="text-sm text-gray-600">{(tamanho as TamanhoOvo).gramas}g</p>
                     )}
                     <p className="text-sm text-gray-600">R$ {tamanho.preco.toFixed(2)}</p>
-                    {/* Adicione esta linha para mostrar a descrição */}
                     <p className="text-xs text-gray-500 mt-1">{tamanho.descricao}</p>
                   </div>
                 ))}
@@ -734,7 +759,7 @@ function OvosPascoaContent() {
               </div>
             </div>
 
-            {!isPacote && (
+            {!isPacote && !isOvoSalgado && !isMiniCaixaFolk && (
               <div className="mb-6">
                 <h2 className="text-xl font-bold text-pink-600 mb-3">2. Escolha a Casca</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -756,24 +781,36 @@ function OvosPascoaContent() {
               </div>
             )}
 
-            {!isPacote && (
+            {!isPacote && !isMiniCaixaFolk && (
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-pink-600 mb-3">3. Escolha o Recheio</h2>
+                <h2 className="text-xl font-bold text-pink-600 mb-3">
+                  {isOvoSalgado ? 'Recheio' : '3. Escolha o Recheio'}
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {ovos.recheios.map(recheio => (
-                    <div
-                      key={recheio.id}
-                      className={`border p-3 rounded-lg cursor-pointer transition ${selectedRecheio === recheio.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-300'
-                        }`}
-                      onClick={() => setSelectedRecheio(recheio.id)}
-                    >
+                  {isOvoSalgado ? (
+                    <div className="border p-3 rounded-lg border-pink-500 bg-pink-50">
                       <div className="flex items-center mb-2">
-                        <div className={`w-4 h-4 rounded-full mr-2 ${selectedRecheio === recheio.id ? 'bg-pink-500' : 'border border-gray-300'}`}></div>
-                        <h3 className="font-semibold">{recheio.nome}</h3>
+                        <div className="w-4 h-4 rounded-full mr-2 bg-pink-500"></div>
+                        <h3 className="font-semibold">Frango</h3>
                       </div>
-                      <p className="text-sm text-gray-600">{recheio.descricao}</p>
+                      <p className="text-sm text-gray-600">Delicioso recheio de frango</p>
                     </div>
-                  ))}
+                  ) : (
+                    ovos.recheios.map(recheio => (
+                      <div
+                        key={recheio.id}
+                        className={`border p-3 rounded-lg cursor-pointer transition ${selectedRecheio === recheio.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-300'
+                          }`}
+                        onClick={() => setSelectedRecheio(recheio.id)}
+                      >
+                        <div className="flex items-center mb-2">
+                          <div className={`w-4 h-4 rounded-full mr-2 ${selectedRecheio === recheio.id ? 'bg-pink-500' : 'border border-gray-300'}`}></div>
+                          <h3 className="font-semibold">{recheio.nome}</h3>
+                        </div>
+                        <p className="text-sm text-gray-600">{recheio.descricao}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
