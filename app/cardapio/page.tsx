@@ -329,7 +329,7 @@ function OvosPascoaContent() {
         nome: nomeItem,
         preco: tamanho.preco,
         quantidade: quantidade,
-        tamanho: 'gramasTotal' in tamanho ? tamanho.gramasTotal : 0,
+        tamanho: 'gramasTotal' in tamanho && tamanho.gramasTotal !== undefined ? tamanho.gramasTotal : 0,
         tipo: 'ovo',
         detalhes: {
           ovosMultiplos: ovosDetalhados
