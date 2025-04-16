@@ -29,80 +29,135 @@
     },
     {
       "id": 2,
-      "nome": "Ninho",
-      "descricao": "Recheio de leite em pó com toque suave e adocicado"
+      "nome": "Prestígio",
+      "descricao": "Creme de coco com chocolate, uma combinação clássica"
     },
     {
       "id": 3,
-      "nome": "Nutella",
-      "descricao": "Creme de avelã importado, intenso e cremoso"
+      "nome": "Ninho com Nutella",
+      "descricao": "Mistura cremosa de leite em pó com creme de avelã"
     },
     {
       "id": 4,
-      "nome": "Beijinho",
-      "descricao": "Doce de coco tradicional e cremoso"
+      "nome": "Cupuaçu com Castanha do Pará",
+      "descricao": "Creme de cupuaçu com pedaços de castanha do pará"
     },
     {
       "id": 5,
-      "nome": "Pistache",
-      "descricao": "Creme de pistache premium com pedaços da fruta"
+      "nome": "Casadinho",
+      "descricao": "Doce de leite cremoso com chocolate branco"
     },
     {
       "id": 6,
-      "nome": "Maracujá",
-      "descricao": "Mousse de maracujá, refrescante e com toque ácido"
+      "nome": "Oreo",
+      "descricao": "Creme de baunilha com pedaços de biscoito Oreo"
+    },
+    {
+      "id": 7,
+      "nome": "Doce de Leite com Amendoim",
+      "descricao": "Doce de leite cremoso com pedaços crocantes de amendoim"
+    },
+    {
+      "id": 8,
+      "nome": "Ovomaltine",
+      "descricao": "Creme maltado com pedaços crocantes de Ovomaltine"
+    },
+    {
+      "id": 9,
+      "nome": "Cupulate",
+      "descricao": "Creme de cupulate (chocolate de cupuaçu), exclusivo da região norte"
     }
+   
   ],
   "tamanhos": [
     {
       "id": 1,
-      "gramas": 250,
-      "preco": 45.90,
-      "imagem": "/img/ovos/350g.jpg"
+      "nome": "Mini ovo 50g",
+      "tipo": "individual",
+      "preco": 17.00,
+      "imagem": "/img/ovos/50gmini.jpeg",
+      "descricao": "Pequeno ovo de Páscoa individual, perfeito para presentear"
     },
     {
-      "id": 2,
-      "gramas": 350,
-      "preco": 59.90,
-      "imagem": "/img/ovos/350g.jpg"
+      "id": 6,
+      "nome": "Ovo salgado 500g",
+      "tipo": "individual",
+      "preco": 65.00,
+      "imagem": "/img/ovos/salgado500g.jpeg",
+      "descricao": "Ovo de Páscoa salgado premium, ideal para quem prefere salgado"
     },
     {
-      "id": 3,
-      "gramas": 500,
-      "preco": 79.90,
-      "imagem": "/img/ovos/350g.jpg"
+      "id": 7,
+      "nome": "Mini Caixa folk",
+      "tipo": "individual",
+      "preco": 19.00,
+      "imagem": "/img/ovos/folk.jpeg",
+      "descricao": "Caixinha decorativa com mini ovo de Páscoa, perfeita para presentear"
+    },
+    {
+      "id": 8,
+      "nome": "Controle 90g",
+      "tipo": "individual",
+      "preco": 58.00,
+      "imagem": "/img/ovos/controlecombrigadeiro.jpeg",
+      "descricao": "Ovo no formato de videogame, divertido e delicioso para os gamers"
     }
   ],
   "pacotes": [
     {
+      "id": 2,
+      "nome": "Trio Mini - 3 ovos de 50g",
+      "tipo": "pacote",
+      "descricao": "Pacote com 3 mini ovos de 50g cada",
+      "quantidade": 3,
+      "gramasIndividual": 50,
+      "gramasTotal": 150,
+      "preco": 48.00,
+      "imagem": "/img/ovos/triomini.jpeg"
+    },
+    {
+      "id": 3,
+      "nome": "Quarteto Mini - 4 ovos de 50g",
+      "tipo": "pacote",
+      "descricao": "Pacote com 4 mini ovos de 50g cada",
+      "quantidade": 4,
+      "gramasIndividual": 50,
+      "gramasTotal": 200,
+      "preco": 60.00,
+      "imagem": "/img/ovos/quartetomini.jpeg"
+    },
+    {
       "id": 4,
-      "nome": "Duo 150g",
-      "descricao": "Pacote com 2 ovos de 150g cada",
-      "quantidade": 2,
-      "gramasIndividual": 150,
-      "gramasTotal": 300,
-      "preco": 69.90,
-      "imagem": "/img/ovos/350g.jpg"
-    },
-    {
-      "id": 5,
-      "nome": "Duo 250g",
-      "descricao": "Pacote com 2 ovos de 250g cada",
-      "quantidade": 2,
-      "gramasIndividual": 250,
-      "gramasTotal": 500,
-      "preco": 89.90,
-      "imagem": "/img/ovos/350g.jpg"
-    },
-    {
-      "id": 6,
-      "nome": "Mini Box",
+      "nome": "Mini Box - 6 ovos de 50g",
+      "tipo": "pacote",
       "descricao": "Caixa com 6 mini ovos de 50g cada",
       "quantidade": 6,
       "gramasIndividual": 50,
       "gramasTotal": 300,
-      "preco": 79.90,
-      "imagem": "/img/ovos/miniovos.png"
+      "preco": 70.00,
+      "imagem": "/img/ovos/6miniovos.jpeg"
+    },
+    {
+      "id": 5,
+      "nome": "Dupla - 2 ovos de 150g",
+      "tipo": "pacote",
+      "descricao": "Caixa com 2 ovos de 150g cada",
+      "quantidade": 2,
+      "gramasIndividual": 150,
+      "gramasTotal": 300,
+      "preco": 70.00,
+      "imagem": "/img/ovos/dupla150g.jpeg"
+    },
+    {
+      "id": 9,
+      "nome": "Kit confeiteiro",
+      "tipo": "pacote",
+      "descricao": "Caixa com 5 mini ovos de 50g ou 1 ovo de 250g",
+      "quantidade": 2,
+      "gramasIndividual": 250,
+      "gramasTotal": 300,
+      "preco": 85.00,
+      "imagem": "/img/ovos/kiteconfeiterio.jpeg"
     }
   ]
 }
