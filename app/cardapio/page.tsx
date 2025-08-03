@@ -861,7 +861,7 @@ function OvosPascoaContent() {
         </h1>
 
         <div className="flex space-x-2 mb-4">
-          <button
+        {/* <button
             onClick={() => setActiveTab('ovos')}
             className={`px-4 py-2 rounded-lg transition ${activeTab === 'ovos'
               ? 'bg-pink-500 text-white'
@@ -869,7 +869,7 @@ function OvosPascoaContent() {
               }`}
           >
             Ovos de Páscoa
-          </button>
+          </button> */}
           <button
             onClick={() => setActiveTab('bolos')}
             className={`px-4 py-2 rounded-lg transition ${activeTab === 'bolos'
