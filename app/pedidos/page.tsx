@@ -281,7 +281,7 @@ function CheckoutContent() {
               </h2>
               
               <div className="space-y-4 mb-6">
-                {carrinho.map((item, index) => (
+                {carrinho.map((item) => (
                   <div
                     key={item.id}
                     className="group relative bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-4 border border-pink-100 hover:shadow-lg transition-all duration-300"
