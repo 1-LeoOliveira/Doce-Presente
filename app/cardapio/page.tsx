@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import bolos from '../../data/bolos.json'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ShoppingCart, Home, Plus, Minus, Check, Star, Heart, Clock } from 'lucide-react'
+import { ShoppingCart, Home, Plus, Minus, Check, Star, Heart } from 'lucide-react'
 
 interface ItemCarrinho {
   id: string;
